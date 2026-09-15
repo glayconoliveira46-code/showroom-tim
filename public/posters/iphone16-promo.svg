@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+  <defs>
+    <linearGradient id="bgApple" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1A1815"/>
+      <stop offset="50%" stop-color="#0A0A0B"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </linearGradient>
+    <radialGradient id="goldGlow" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#C5B49D" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cardGradApple" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="rgba(197,180,157,0.18)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.02)"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1080" height="1920" fill="url(#bgApple)"/>
+  <circle cx="540" cy="800" r="550" fill="url(#goldGlow)"/>
+
+  <!-- Header -->
+  <g transform="translate(120, 140)">
+    <rect width="300" height="50" rx="25" fill="#C5B49D" opacity="0.2"/>
+    <text x="150" y="32" fill="#E8DEC8" font-family="system-ui, sans-serif" font-size="20" font-weight="900" text-anchor="middle" letter-spacing="4">NOVO NA TIM</text>
+  </g>
+
+  <!-- Título -->
+  <text x="540" y="380" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="70" font-weight="900" text-anchor="middle" letter-spacing="-1">
+    iPhone 16 Pro
+  </text>
+  <text x="540" y="440" fill="#C5B49D" font-family="system-ui, sans-serif" font-size="32" font-weight="600" text-anchor="middle" letter-spacing="2">
+    TITÂNIO DESERTO. CHIP A18 PRO.
+  </text>
+
+  <!-- Mockup iPhone 16 Pro -->
+  <g transform="translate(340, 520)">
+    <rect x="0" y="0" width="400" height="740" rx="55" fill="#181716" stroke="#C5B49D" stroke-width="7"/>
+    <rect x="14" y="14" width="372" height="712" rx="45" fill="#000000"/>
+    
+    <!-- Dynamic Island -->
+    <rect x="140" y="30" width="120" height="35" rx="17.5" fill="#1A1815"/>
+    
+    <!-- Arte na tela -->
+    <circle cx="200" cy="360" r="130" fill="#C5B49D" opacity="0.2"/>
+    <text x="200" y="350" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="32" font-weight="800" text-anchor="middle">Apple Intelligence</text>
+    <text x="200" y="390" fill="#C5B49D" font-family="system-ui, sans-serif" font-size="18" text-anchor="middle">Controle da Câmera por Toque</text>
+  </g>
+
+  <!-- Destaques -->
+  <g transform="translate(100, 1340)">
+    <rect width="880" height="260" rx="30" fill="url(#cardGradApple)" stroke="rgba(197,180,157,0.3)"/>
+    
+    <text x="80" y="85" fill="#C5B49D" font-family="system-ui, sans-serif" font-size="28" font-weight="900">🔘 Novo Botão Controle da Câmera</text>
+    <text x="80" y="115" fill="#A89E94" font-family="system-ui, sans-serif" font-size="18">Ajuste de exposição, profundidade de campo e zoom em um deslizamento</text>
+
+    <line x1="50" y1="140" x2="830" y2="140" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+
+    <text x="80" y="195" fill="#C5B49D" font-family="system-ui, sans-serif" font-size="28" font-weight="900">⚡ Chip A18 Pro com GPU 6 Cores</text>
+    <text x="80" y="225" fill="#A89E94" font-family="system-ui, sans-serif" font-size="18">Poder incomparável para fotos ProRAW, 4K 120fps Dolby Vision e jogos AAA</text>
+  </g>
+
+  <g transform="translate(100, 1640)">
+    <rect width="880" height="180" rx="30" fill="#002B7F"/>
+    <text x="60" y="75" fill="#00B5E2" font-family="system-ui, sans-serif" font-size="28" font-weight="900">CONECTE AO 5G MAIS RÁPIDO DO BRASIL</text>
+    <text x="60" y="125" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="44" font-weight="900">12X SEM JUROS NOS CARTÕES TIM</text>
+  </g>
+</svg>

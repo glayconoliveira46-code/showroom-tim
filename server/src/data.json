@@ -1,0 +1,623 @@
+{
+  "clusters": [
+    {
+      "id": "cluster-sp",
+      "name": "Cluster SP Capital (Flagships)"
+    },
+    {
+      "id": "cluster-rj",
+      "name": "Cluster RJ Litoral"
+    },
+    {
+      "id": "cluster-interior",
+      "name": "Cluster Interior & Franquias"
+    },
+    {
+      "id": "cluster-1789495112142",
+      "name": "Cluster Sul & Curitiba",
+      "description": "Flagships e Franquias PR/SC/RS"
+    }
+  ],
+  "stores": [
+    {
+      "id": "loja-101",
+      "name": "Flagship Morumbi Shopping",
+      "city": "São Paulo",
+      "code": "SP-MOR-01",
+      "cluster_id": "cluster-sp"
+    },
+    {
+      "id": "loja-102",
+      "name": "Shopping Barra Sul",
+      "city": "Rio de Janeiro",
+      "code": "RJ-BAR-02",
+      "cluster_id": "cluster-rj"
+    },
+    {
+      "id": "loja-103",
+      "name": "Shopping Iguatemi Campinas",
+      "city": "Campinas",
+      "code": "SP-CPN-03",
+      "cluster_id": "cluster-interior"
+    },
+    {
+      "id": "loja-1789495188313",
+      "name": "Shopping Mueller Curitiba",
+      "city": "Curitiba",
+      "code": "PR-MUE-01",
+      "cluster_id": "cluster-sp"
+    }
+  ],
+  "global_plans": [
+    {
+      "id": "plan-black-100",
+      "name": "TIM Black Família 100GB",
+      "category": "Pós-Pago",
+      "badge": "TIM Black Família"
+    },
+    {
+      "id": "plan-black-50",
+      "name": "TIM Black Individual 50GB",
+      "category": "Pós-Pago",
+      "badge": "TIM Black Individual"
+    },
+    {
+      "id": "plan-controle-30",
+      "name": "TIM Controle Smart 30GB",
+      "category": "Controle",
+      "badge": "TIM Controle"
+    },
+    {
+      "id": "plan-controle-redes",
+      "name": "TIM Controle Redes 25GB",
+      "category": "Controle",
+      "badge": "TIM Controle Redes"
+    },
+    {
+      "id": "plan-avulso",
+      "name": "Aparelho Desbloqueado (Sem Plano)",
+      "category": "Avulso",
+      "badge": "Sem Fidelidade"
+    }
+  ],
+  "devices_catalog": [
+    {
+      "id": "samsung-s24-ultra",
+      "model_name": "Galaxy S24 Ultra",
+      "brand": "Samsung",
+      "base_price": 7999,
+      "tagline": "O smartphone com Inteligência Artificial definitiva",
+      "video_url": "/s24-video.mp4",
+      "inactivity_timeout_sec": 30,
+      "target_scope": "all",
+      "target_cluster_id": "cluster-sp",
+      "target_store_id": "loja-101",
+      "plans_pricing": [
+        {
+          "id": "plan-black-100",
+          "plan_name": "TIM Black Família 100GB",
+          "plan_badge": "Oferta Especial TIM Black",
+          "plan_category": "Pós-Pago",
+          "subsidy_amount": 2500,
+          "installments_count": 12,
+          "price_cash": 5499,
+          "price_installments": "12x de R$ 458,25 sem juros",
+          "discount_label": "Economia de R$ 2.500,00",
+          "is_featured": true,
+          "is_active": true
+        },
+        {
+          "id": "plan-black-50",
+          "plan_name": "TIM Black Individual 50GB",
+          "plan_badge": "TIM Black Individual",
+          "plan_category": "Pós-Pago",
+          "subsidy_amount": 1800,
+          "installments_count": 12,
+          "price_cash": 6199,
+          "price_installments": "12x de R$ 516,58 sem juros",
+          "discount_label": "Economia de R$ 1.800,00",
+          "is_featured": false,
+          "is_active": true
+        },
+        {
+          "id": "plan-controle-30",
+          "plan_name": "TIM Controle Smart 30GB",
+          "plan_badge": "TIM Controle Mais",
+          "plan_category": "Controle",
+          "subsidy_amount": 1100,
+          "installments_count": 12,
+          "price_cash": 6899,
+          "price_installments": "12x de R$ 574,92 sem juros",
+          "discount_label": "Economia de R$ 1.100,00",
+          "is_featured": false,
+          "is_active": true
+        },
+        {
+          "id": "plan-avulso",
+          "plan_name": "Aparelho Desbloqueado (Sem Plano)",
+          "plan_badge": "Aparelho Desbloqueado",
+          "plan_category": "Avulso",
+          "subsidy_amount": 0,
+          "installments_count": 12,
+          "price_cash": 7999,
+          "price_installments": "12x de R$ 666,58 sem juros",
+          "discount_label": "Preço de Tabela",
+          "is_featured": false,
+          "is_active": true
+        }
+      ],
+      "colors": [
+        {
+          "name": "Titânio Cinza",
+          "hex": "#6C6B66"
+        },
+        {
+          "name": "Titânio Preto",
+          "hex": "#272727"
+        },
+        {
+          "name": "Titânio Violeta",
+          "hex": "#4C4656"
+        },
+        {
+          "name": "Titânio Amarelo",
+          "hex": "#F0E3B6"
+        }
+      ],
+      "highlights": [
+        {
+          "id": "ai",
+          "title": "Galaxy AI Integrada",
+          "desc": "Tradução simultânea em chamadas, Circular para Pesquisar e edição mágica com IA gerativa.",
+          "icon": "Sparkles"
+        },
+        {
+          "id": "camera",
+          "title": "Câmera Quádrupla 200MP",
+          "desc": "Zoom espacial de 100x e Nightography com processamento neural ProVisual.",
+          "icon": "Camera"
+        },
+        {
+          "id": "screen",
+          "title": "Display Dynamic AMOLED 2X",
+          "desc": "Tela de 6.8\" QHD+ com 2.600 nits de brilho e Gorilla Armor.",
+          "icon": "Smartphone"
+        },
+        {
+          "id": "battery",
+          "title": "Bateria de 5.000 mAh",
+          "desc": "Até 30 horas de reprodução contínua e recarga ultra rápida de 45W.",
+          "icon": "BatteryCharging"
+        }
+      ],
+      "specs": {
+        "processador": "Snapdragon 8 Gen 3 for Galaxy (4nm)",
+        "memoria_ram": "12 GB LPDDR5X",
+        "armazenamento": "256 GB / 512 GB / 1 TB",
+        "resistencia": "Certificação IP68 (água e poeira)",
+        "conectividade": "5G SA/NSA, Wi-Fi 7, Bluetooth 5.3"
+      },
+      "media_playlist": [
+        {
+          "id": "pl-s24-1",
+          "title": "Galaxy AI Hands-on (Vídeo Oficial)",
+          "type": "video",
+          "url": "/s24-video.mp4",
+          "duration_sec": 15,
+          "is_active": true
+        }
+      ]
+    },
+    {
+      "id": "apple-iphone-16-pro",
+      "model_name": "iPhone 16 Pro",
+      "brand": "Apple",
+      "base_price": 9999,
+      "tagline": "Titânio. Tão forte. Tão leve. Tão Pro.",
+      "video_url": "/s24-video.mp4",
+      "inactivity_timeout_sec": 30,
+      "target_scope": "all",
+      "target_cluster_id": null,
+      "target_store_id": null,
+      "plans_pricing": [
+        {
+          "id": "plan-black-100",
+          "plan_name": "TIM Black Família 100GB",
+          "plan_badge": "Lançamento TIM Black Família",
+          "plan_category": "Pós-Pago",
+          "subsidy_amount": 2000,
+          "installments_count": 12,
+          "price_cash": 7999,
+          "price_installments": "12x de R$ 666,58 sem juros",
+          "discount_label": "Economia de R$ 2.000,00",
+          "is_featured": true,
+          "is_active": true
+        },
+        {
+          "id": "plan-black-50",
+          "plan_name": "TIM Black Individual 50GB",
+          "plan_badge": "TIM Black Individual",
+          "plan_category": "Pós-Pago",
+          "subsidy_amount": 1300,
+          "installments_count": 12,
+          "price_cash": 8699,
+          "price_installments": "12x de R$ 724,92 sem juros",
+          "discount_label": "Economia de R$ 1.300,00",
+          "is_featured": false,
+          "is_active": true
+        },
+        {
+          "id": "plan-controle-30",
+          "plan_name": "TIM Controle Smart 30GB",
+          "plan_badge": "TIM Controle",
+          "plan_category": "Controle",
+          "subsidy_amount": 700,
+          "installments_count": 12,
+          "price_cash": 9299,
+          "price_installments": "12x de R$ 774,92 sem juros",
+          "discount_label": "Economia de R$ 700,00",
+          "is_featured": false,
+          "is_active": true
+        },
+        {
+          "id": "plan-avulso",
+          "plan_name": "Aparelho Desbloqueado (Sem Plano)",
+          "plan_badge": "Desbloqueado",
+          "plan_category": "Avulso",
+          "subsidy_amount": 0,
+          "installments_count": 12,
+          "price_cash": 9999,
+          "price_installments": "12x de R$ 833,25 sem juros",
+          "discount_label": "Preço de Tabela",
+          "is_featured": false,
+          "is_active": true
+        }
+      ],
+      "colors": [
+        {
+          "name": "Titânio Deserto",
+          "hex": "#C5B49D"
+        },
+        {
+          "name": "Titânio Natural",
+          "hex": "#9E9A95"
+        },
+        {
+          "name": "Titânio Branco",
+          "hex": "#F2F1ED"
+        },
+        {
+          "name": "Titânio Preto",
+          "hex": "#3C3B37"
+        }
+      ],
+      "highlights": [
+        {
+          "id": "apple-intel",
+          "title": "Apple Intelligence",
+          "desc": "IA integrada, pessoal, privada e intuitiva para criação e produtividade.",
+          "icon": "Sparkles"
+        },
+        {
+          "id": "camera-control",
+          "title": "Controle da Câmera",
+          "desc": "Novo botão capacitivo para foco, zoom e captura profissional com um toque.",
+          "icon": "Camera"
+        },
+        {
+          "id": "chip-a18",
+          "title": "Chip A18 Pro",
+          "desc": "CPU e GPU com poder para jogos AAA e processamento neural avançado.",
+          "icon": "Zap"
+        },
+        {
+          "id": "battery-pro",
+          "title": "Autonomia de Bateria",
+          "desc": "Maior duração de bateria em um iPhone Pro com recarga rápida MagSafe.",
+          "icon": "BatteryCharging"
+        }
+      ],
+      "specs": {
+        "processador": "A18 Pro com GPU de 6 núcleos",
+        "memoria_ram": "8 GB unificada",
+        "armazenamento": "128 GB / 256 GB / 512 GB / 1 TB",
+        "resistencia": "Ceramic Shield de última geração e IP68",
+        "conectividade": "5G Ultra Wideband, Wi-Fi 7, Bluetooth 5.3"
+      },
+      "media_playlist": [
+        {
+          "id": "pl-ip16-2",
+          "title": "Vídeo Oficial da Câmera Pro",
+          "type": "video",
+          "url": "/s24-video.mp4",
+          "duration_sec": 15,
+          "is_active": true
+        }
+      ]
+    },
+    {
+      "id": "samsung-galaxy-z-fold-1789502172848",
+      "model_name": "Galaxy Z Fold",
+      "brand": "Samsung",
+      "base_price": 5001,
+      "tagline": "O melhor da tecnologia com a rede TIM 5G",
+      "video_url": "/s24-video.mp4",
+      "inactivity_timeout_sec": 30,
+      "target_scope": "all",
+      "target_cluster_id": "cluster-sp",
+      "target_store_id": "loja-101",
+      "plans_pricing": [
+        {
+          "id": "plan-black-100",
+          "plan_name": "TIM Black Família 100GB",
+          "plan_badge": "TIM Black Família",
+          "plan_category": "Pós-Pago",
+          "subsidy_amount": 1500,
+          "installments_count": 12,
+          "price_cash": 3501,
+          "price_installments": "12x de R$ 291,75 sem juros",
+          "discount_label": "Economia de R$ 1.500,00",
+          "is_featured": true,
+          "is_active": true
+        },
+        {
+          "id": "plan-black-50",
+          "plan_name": "TIM Black Individual 50GB",
+          "plan_badge": "TIM Black Individual",
+          "plan_category": "Pós-Pago",
+          "subsidy_amount": 1500,
+          "installments_count": 12,
+          "price_cash": 3501,
+          "price_installments": "12x de R$ 291,75 sem juros",
+          "discount_label": "Economia de R$ 1.500,00",
+          "is_featured": false,
+          "is_active": true
+        },
+        {
+          "id": "plan-controle-30",
+          "plan_name": "TIM Controle Smart 30GB",
+          "plan_badge": "TIM Controle",
+          "plan_category": "Controle",
+          "subsidy_amount": 750,
+          "installments_count": 12,
+          "price_cash": 4251,
+          "price_installments": "12x de R$ 354,25 sem juros",
+          "discount_label": "Economia de R$ 750,00",
+          "is_featured": false,
+          "is_active": true
+        },
+        {
+          "id": "plan-controle-redes",
+          "plan_name": "TIM Controle Redes 25GB",
+          "plan_badge": "TIM Controle Redes",
+          "plan_category": "Controle",
+          "subsidy_amount": 750,
+          "installments_count": 12,
+          "price_cash": 4251,
+          "price_installments": "12x de R$ 354,25 sem juros",
+          "discount_label": "Economia de R$ 750,00",
+          "is_featured": false,
+          "is_active": true
+        },
+        {
+          "id": "plan-avulso",
+          "plan_name": "Aparelho Desbloqueado (Sem Plano)",
+          "plan_badge": "Sem Fidelidade",
+          "plan_category": "Avulso",
+          "subsidy_amount": 0,
+          "installments_count": 12,
+          "price_cash": 5001,
+          "price_installments": "12x de R$ 416,75 sem juros",
+          "discount_label": "Preço de Tabela",
+          "is_featured": false,
+          "is_active": true
+        }
+      ],
+      "colors": [
+        {
+          "name": "Grafite",
+          "hex": "#2B2B2B"
+        },
+        {
+          "name": "Prata",
+          "hex": "#DCDCDC"
+        }
+      ],
+      "highlights": [
+        {
+          "id": "h1",
+          "title": "Performance e 5G",
+          "desc": "Processamento veloz e conexão ultra rápida TIM.",
+          "icon": "Zap"
+        },
+        {
+          "id": "h2",
+          "title": "Câmera de Alta Resolução",
+          "desc": "Capture detalhes incríveis em fotos e vídeos.",
+          "icon": "Camera"
+        },
+        {
+          "id": "h3",
+          "title": "Bateria para o Dia Todo",
+          "desc": "Autonomia para você não ficar na mão.",
+          "icon": "BatteryCharging"
+        }
+      ],
+      "specs": {
+        "processador": "Octa-Core de Última Geração",
+        "tela": "Tela Imersiva AMOLED 120Hz",
+        "memoria": "128 GB / 256 GB",
+        "conectividade": "5G SA/NSA, Wi-Fi 6E, Bluetooth 5.3"
+      },
+      "media_playlist": [
+        {
+          "id": "pl-samsung-galaxy-z-fold-1789502172848-default",
+          "title": "Vídeo Vitrine Galaxy Z Fold",
+          "type": "video",
+          "url": "/s24-video.mp4",
+          "duration_sec": 15,
+          "is_active": true
+        }
+      ]
+    },
+    {
+      "id": "motorola-moto-g04",
+      "model_name": "Moto G04",
+      "brand": "Motorola",
+      "base_price": 799,
+      "tagline": "Design fino com tela fluida de 90Hz, som estéreo Dolby Atmos e super bateria",
+      "video_url": "/s24-video.mp4",
+      "inactivity_timeout_sec": 30,
+      "target_scope": "all",
+      "target_cluster_id": "cluster-sp",
+      "target_store_id": "loja-101",
+      "plans_pricing": [
+        {
+          "id": "plan-g04-controle",
+          "plan_name": "TIM Controle Smart 30GB",
+          "plan_badge": "Oferta Especial TIM Controle",
+          "plan_category": "Controle",
+          "subsidy_amount": 400,
+          "installments_count": 12,
+          "price_cash": 399,
+          "price_installments": "12x de R$ 33,25 sem juros",
+          "discount_label": "Economia de R$ 400,00",
+          "is_featured": true,
+          "is_active": true
+        },
+        {
+          "id": "plan-g04-black",
+          "plan_name": "TIM Black Individual 50GB",
+          "plan_badge": "TIM Black Individual",
+          "plan_category": "Pós-Pago",
+          "subsidy_amount": 600,
+          "installments_count": 12,
+          "price_cash": 199,
+          "price_installments": "12x de R$ 16,58 sem juros",
+          "discount_label": "Economia de R$ 600,00",
+          "is_featured": false,
+          "is_active": true
+        },
+        {
+          "id": "plan-g04-familia",
+          "plan_name": "TIM Black Família 100GB",
+          "plan_badge": "TIM Black Família",
+          "plan_category": "Pós-Pago",
+          "subsidy_amount": 750,
+          "installments_count": 12,
+          "price_cash": 49,
+          "price_installments": "12x de R$ 4,08 sem juros",
+          "discount_label": "Economia de R$ 750,00",
+          "is_featured": false,
+          "is_active": true
+        },
+        {
+          "id": "plan-g04-avulso",
+          "plan_name": "Aparelho Desbloqueado (Sem Plano)",
+          "plan_badge": "Aparelho Desbloqueado",
+          "plan_category": "Avulso",
+          "subsidy_amount": 0,
+          "installments_count": 12,
+          "price_cash": 799,
+          "price_installments": "12x de R$ 66,58 sem juros",
+          "discount_label": "Preço de Tabela",
+          "is_featured": false,
+          "is_active": true
+        }
+      ],
+      "colors": [
+        {
+          "name": "Grafite",
+          "hex": "#26282B"
+        },
+        {
+          "name": "Verde",
+          "hex": "#4A6B5D"
+        },
+        {
+          "name": "Coral Peach",
+          "hex": "#E28773"
+        },
+        {
+          "name": "Azul",
+          "hex": "#2E4A62"
+        }
+      ],
+      "highlights": [
+        {
+          "id": "camera",
+          "title": "Câmera 16 MP com IA",
+          "desc": "Fotos nítidas com Modo Retrato e inteligência artificial para otimização automática de cenas.",
+          "icon": "Camera"
+        },
+        {
+          "id": "screen",
+          "title": "Tela 6.6\" HD+ 90Hz & Som Dolby Atmos",
+          "desc": "Imersão cinematográfica com taxa de atualização de 90Hz e áudio espacial estéreo.",
+          "icon": "Tv"
+        },
+        {
+          "id": "battery",
+          "title": "Bateria de 5.000 mAh",
+          "desc": "Até 40 horas de duração contínua com tecnologia de carregamento rápido TurboPower.",
+          "icon": "BatteryCharging"
+        },
+        {
+          "id": "performance",
+          "title": "Octa-Core com RAM Boost até 8GB",
+          "desc": "Desempenho veloz com expansão inteligente de memória RAM virtual para alternar apps sem lentidão.",
+          "icon": "Cpu"
+        }
+      ],
+      "specs": {
+        "processador": "Unisoc T606 Octa-core (1.6 GHz)",
+        "memoria_ram": "4 GB + até 4 GB RAM Boost virtual",
+        "armazenamento": "64 GB / 128 GB (MicroSD até 1 TB)",
+        "tela": "6.6\" IPS LCD HD+ (90 Hz)",
+        "camera": "Traseira 16 MP (IA) + Frontal 5 MP",
+        "bateria": "5.000 mAh de longa duração",
+        "audio": "Alto-falantes estéreo Dolby Atmos"
+      },
+      "media_playlist": [
+        {
+          "id": "pl-g04-1",
+          "title": "Apresentação Moto G04",
+          "type": "video",
+          "url": "/s24-video.mp4",
+          "duration_sec": 15,
+          "object_fit": "cover",
+          "position_x": 50,
+          "position_y": 50,
+          "scale": 1,
+          "is_active": true
+        },
+        {
+          "id": "pl-g04-tim5g",
+          "title": "Pôster TIM 5G Standalone Ultraveloz",
+          "type": "image",
+          "url": "/posters/tim-5g-standalone.svg",
+          "duration_sec": 7,
+          "object_fit": "cover",
+          "position_x": 50,
+          "position_y": 50,
+          "scale": 1,
+          "is_active": true
+        }
+      ]
+    }
+  ],
+  "active_device_id": "samsung-s24-ultra",
+  "active_store_id": "loja-101",
+  "store_pin": "1234",
+  "media_library": [
+    {
+      "id": "med-lib-1",
+      "title": "Galaxy AI Hands-on (Vídeo Oficial)",
+      "type": "video",
+      "url": "/s24-video.mp4",
+      "format": "MP4 1080x1920",
+      "duration_sec": 15,
+      "created_at": "2026-09-15T18:26:38.151Z"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "device_id": "samsung-s24-ultra",
+  "plans_pricing": [
+    {
+      "id": "plan-black-100",
+      "plan_name": "TIM Black Família 100GB",
+      "plan_badge": "Oferta Especial TIM Black",
+      "plan_category": "Pós-Pago",
+      "price_cash": 5499.00,
+      "price_installments": "12x R$ 458,25 sem juros",
+      "discount_label": "Economia de R$ 2.500",
+      "is_featured": true,
+      "is_active": true
+    },
+    {
+      "id": "plan-black-50",
+      "plan_name": "TIM Black Individual 50GB",
+      "plan_badge": "TIM Black Individual",
+      "plan_category": "Pós-Pago",
+      "price_cash": 6199.00,
+      "price_installments": "12x R$ 516,58 sem juros",
+      "discount_label": "Economia de R$ 1.800",
+      "is_featured": false,
+      "is_active": true
+    }
+  ]
+}

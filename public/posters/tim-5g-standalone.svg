@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+  <defs>
+    <linearGradient id="bgTim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#001F5C"/>
+      <stop offset="50%" stop-color="#001438"/>
+      <stop offset="100%" stop-color="#002B7F"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1080" height="1920" fill="url(#bgTim)"/>
+
+  <g transform="translate(100, 300)">
+    <text x="440" y="100" fill="#00B5E2" font-family="system-ui, sans-serif" font-size="36" font-weight="900" text-anchor="middle" letter-spacing="4">EXPERIÊNCIA TIM SHOWROOM</text>
+    <text x="440" y="200" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="82" font-weight="900" text-anchor="middle" letter-spacing="-2">O MAIOR 5G</text>
+    <text x="440" y="280" fill="#FFCC00" font-family="system-ui, sans-serif" font-size="64" font-weight="900" text-anchor="middle">DO BRASIL</text>
+  </g>
+
+  <!-- Círculo Tecnológico Central -->
+  <g transform="translate(540, 950)">
+    <circle r="300" fill="#002B7F" stroke="#00B5E2" stroke-width="6"/>
+    <circle r="220" fill="#001438" stroke="#FFFFFF" stroke-width="2" stroke-dasharray="10,10"/>
+    <text x="0" y="25" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="120" font-weight="900" text-anchor="middle">5G</text>
+    <text x="0" y="70" fill="#00B5E2" font-family="system-ui, sans-serif" font-size="28" font-weight="800" text-anchor="middle">STANDALONE</text>
+  </g>
+
+  <g transform="translate(100, 1450)">
+    <rect width="880" height="300" rx="36" fill="rgba(0,0,0,0.5)" stroke="#00B5E2" stroke-width="2"/>
+    <text x="440" y="90" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="38" font-weight="900" text-anchor="middle">Leve seu Smartphone com Desconto</text>
+    <text x="440" y="150" fill="#B0C4DE" font-family="system-ui, sans-serif" font-size="24" text-anchor="middle">Consulte um de nossos promotores na loja</text>
+    <rect x="240" y="190" width="400" height="70" rx="35" fill="#00B5E2"/>
+    <text x="440" y="235" fill="#001438" font-family="system-ui, sans-serif" font-size="24" font-weight="900" text-anchor="middle">TOQUE NA TELA PARA VER PLANOS</text>
+  </g>
+</svg>
