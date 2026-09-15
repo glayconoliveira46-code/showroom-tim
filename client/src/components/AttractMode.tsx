@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { TimLogo } from './TimLogo';
 import { Sparkles, ArrowRight, Film, Image as ImageIcon, Clock } from 'lucide-react';
 
 export interface MediaPlaylistItem {
@@ -191,18 +190,16 @@ export const AttractMode: React.FC<AttractModeProps> = ({
         <div className="absolute inset-0 bg-gradient-to-t from-[#00102E] via-transparent to-[#001438]/85 pointer-events-none" />
       </div>
 
-      {/* 2. HEADER MINIMALISTA COM LOGO OFICIAL TIM & OFERTA */}
-      <header className="relative z-10 px-6 pt-6 pb-2 pointer-events-none flex items-center justify-between">
-        <div className="flex items-center">
-          <TimLogo className="h-5 w-auto" variant="white" />
-        </div>
-
-        <div className="bg-[#002B7F]/85 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 flex items-center space-x-1.5 shadow-sm">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#00B5E2] animate-ping" />
-          <span className="text-[9px] font-bold uppercase tracking-wider text-white">
-            {planBadge}
-          </span>
-        </div>
+      {/* 2. HEADER ULTRA-MINIMALISTA (APENAS BADGE DE OFERTA NO TOPO) */}
+      <header className="relative z-10 px-6 pt-6 pb-2 pointer-events-none flex items-center justify-end">
+        {planBadge && (
+          <div className="bg-[#002B7F]/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 flex items-center space-x-1.5 shadow-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00B5E2] animate-ping" />
+            <span className="text-[9px] font-bold uppercase tracking-wider text-white">
+              {planBadge}
+            </span>
+          </div>
+        )}
       </header>
 
       {/* 3. ESPAÇO CENTRAL LIVRE PARA O VÍDEO / PÔSTER */}
@@ -214,7 +211,7 @@ export const AttractMode: React.FC<AttractModeProps> = ({
         {/* Nome do Aparelho & Tagline */}
         <div className="mb-3 text-left">
           <span className="text-[10px] font-bold uppercase tracking-widest text-[#00B5E2] block">
-            Samsung Flagship
+            Destaque em Loja
           </span>
           <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-lg leading-tight">
             {modelName}
@@ -228,7 +225,7 @@ export const AttractMode: React.FC<AttractModeProps> = ({
         <div className="bg-black/55 backdrop-blur-xl rounded-2xl p-3.5 border border-white/20 mb-3 flex items-center justify-between shadow-2xl">
           <div>
             <span className="text-[9px] uppercase font-bold tracking-wider text-blue-200 block">
-              Oferta TIM Black
+              {planBadge || 'Oferta em Destaque'}
             </span>
             <div className="text-2xl font-black text-[#00B5E2] tracking-tight leading-none mt-0.5">
               {priceInstallments}
