@@ -80,8 +80,12 @@ export const DisplayPage: React.FC = () => {
       const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
-        setCampaign(data);
-        campaignRef.current = data;
+        const prev = JSON.stringify(campaignRef.current);
+        const next = JSON.stringify(data);
+        if (prev !== next) {
+          setCampaign(data);
+          campaignRef.current = data;
+        }
       }
     } catch (err) {
       console.warn('Usando dados offline', err);
@@ -221,7 +225,6 @@ export const DisplayPage: React.FC = () => {
   };
 
   const handleBackToAttract = () => {
-    if (animState !== 'idle') return;
     setAnimState('closing');
 
     setTimeout(() => {
@@ -231,11 +234,9 @@ export const DisplayPage: React.FC = () => {
   };
 
   useInactivity({
-    timeoutSec: campaign?.inactivity_timeout_sec || 30,
-    isActive: mode === 'interactive' && !isPinOpen && !isUnlocked && animState === 'idle',
-    onTimeout: () => {
-      handleBackToAttract();
-    },
+    timeoutSec: campaign?.inactivity_timeout_sec || 15,
+    isActive: mode === 'interactive' && !isPinOpen && !isUnlocked,
+    onTimeout: handleBackToAttract,
   });
 
   const handleTripleTapLogo = () => {

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 
 interface UseInactivityProps {
   timeoutSec: number;
@@ -8,29 +8,42 @@ interface UseInactivityProps {
 
 export function useInactivity({ timeoutSec, onTimeout, isActive }: UseInactivityProps) {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const onTimeoutRef = useRef(onTimeout);
 
-  const resetTimer = () => {
+  // Mantém a referência da função sem reiniciar o timer a cada render
+  useEffect(() => {
+    onTimeoutRef.current = onTimeout;
+  }, [onTimeout]);
+
+  const resetTimer = useCallback(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
+      timerRef.current = null;
     }
     if (isActive) {
       timerRef.current = setTimeout(() => {
-        onTimeout();
-      }, timeoutSec * 1000);
+        console.log('[Inactivity] Timeout atingido, retornando à vitrine...');
+        if (onTimeoutRef.current) {
+          onTimeoutRef.current();
+        }
+      }, Math.max(5, timeoutSec) * 1000);
     }
-  };
+  }, [isActive, timeoutSec]);
 
   useEffect(() => {
     if (!isActive) {
-      if (timerRef.current) clearTimeout(timerRef.current);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
       return;
     }
 
-    const events = ['pointerdown', 'touchstart', 'scroll', 'click', 'keydown'];
-    
-    // Inicia o timer
+    // Inicia o timer imediatamente quando a tela interativa fica ativa
     resetTimer();
 
+    const events = ['pointerdown', 'touchstart', 'touchmove', 'scroll', 'click', 'keydown'];
+    
     const handleUserActivity = () => {
       resetTimer();
     };
@@ -40,10 +53,13 @@ export function useInactivity({ timeoutSec, onTimeout, isActive }: UseInactivity
     });
 
     return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
       events.forEach(event => {
         window.removeEventListener(event, handleUserActivity);
       });
     };
-  }, [timeoutSec, isActive, onTimeout]);
+  }, [isActive, timeoutSec, resetTimer]);
 }
