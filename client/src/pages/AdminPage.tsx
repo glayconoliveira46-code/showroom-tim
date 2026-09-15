@@ -7,12 +7,13 @@ import {
   LayoutDashboard, Film, Clock, Settings, ExternalLink, ArrowLeft, Play,
   Tv, MonitorSmartphone, HelpCircle, FileVideo, PlusCircle,
   Search, Trash2, ArrowUp, ArrowDown, Image as ImageIcon, ChevronLeft,
-  ChevronRight, X, FolderOpen, Database, RefreshCw
+  ChevronRight, X, FolderOpen, Database, RefreshCw, QrCode, Copy, Printer
 } from 'lucide-react';
+import QRCode from 'qrcode';
 import { TimLogo } from '../components/TimLogo';
 import { calculateTelecomPricing, PricingCalculationResult } from '../utils/pricingEngine';
 
-type AdminView = 'dashboard' | 'pricing' | 'media' | 'devices' | 'plans' | 'clusters' | 'simulators';
+type AdminView = 'dashboard' | 'pricing' | 'media' | 'devices' | 'plans' | 'clusters' | 'simulators' | 'qrcode';
 
 export const AdminPage: React.FC = () => {
   const [currentView, setCurrentView] = useState<AdminView>('dashboard');
@@ -97,6 +98,31 @@ export const AdminPage: React.FC = () => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 4000);
   };
+
+  // Estados do Módulo de Provisionamento por QR Code
+  const [qrSelectedDeviceId, setQrSelectedDeviceId] = useState<string>('motorola-moto-g04');
+  const [qrSelectedStoreId, setQrSelectedStoreId] = useState<string>('');
+  const [qrPedestalTag, setQrPedestalTag] = useState<string>('Bancada A - Pedestal 01');
+  const [generatedQrDataUrl, setGeneratedQrDataUrl] = useState<string>('');
+
+  // Geração do QR Code dinâmico com link de auto-provisionamento
+  useEffect(() => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const devId = qrSelectedDeviceId || selectedDeviceId || 'motorola-moto-g04';
+    const storeId = qrSelectedStoreId || (overview?.stores?.[0]?.id || 'loja-101');
+    const targetUrl = `${origin}/display?device=${encodeURIComponent(devId)}&store=${encodeURIComponent(storeId)}&auto=1`;
+
+    QRCode.toDataURL(targetUrl, {
+      width: 420,
+      margin: 2,
+      color: {
+        dark: '#001438',
+        light: '#FFFFFF'
+      }
+    }).then(url => {
+      setGeneratedQrDataUrl(url);
+    }).catch(err => console.error('Erro ao gerar QR Code:', err));
+  }, [qrSelectedDeviceId, qrSelectedStoreId, qrPedestalTag, selectedDeviceId, overview]);
 
   // Carrega visão inicial da API
   const fetchOverview = async (targetIdToSelect?: string) => {
@@ -849,6 +875,7 @@ export const AdminPage: React.FC = () => {
                   {currentView === 'plans' && '• Catálogo de Planos'}
                   {currentView === 'clusters' && '• Clusterização & Lojas'}
                   {currentView === 'simulators' && '• Simuladores de Vitrine'}
+                  {currentView === 'qrcode' && '• Provisionamento por QR Code'}
                 </span>
               )}
             </div>
@@ -1121,6 +1148,35 @@ export const AdminPage: React.FC = () => {
                   <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs font-bold text-[#00B5E2]">
                     <span>Abrir Simuladores</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+
+                {/* Módulo 7: Provisionamento por QR Code */}
+                <div 
+                  onClick={() => setCurrentView('qrcode')}
+                  className="bg-[#0E172C] hover:bg-[#131E38] border border-[#00B5E2]/30 hover:border-[#00B5E2] p-6 rounded-3xl transition-all cursor-pointer shadow-xl group flex flex-col justify-between space-y-4 md:col-span-2 lg:col-span-3 bg-gradient-to-r from-[#0E172C] via-[#0e2144] to-[#0A1A35]"
+                >
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-14 h-14 rounded-2xl bg-[#002B7F] text-[#00B5E2] border border-[#00B5E2]/40 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform flex-shrink-0">
+                        <QrCode className="w-8 h-8" />
+                      </div>
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <h3 className="text-lg font-black text-white group-hover:text-[#00B5E2] transition-colors">7. Provisionamento Rápido por QR Code</h3>
+                          <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                            Zero-Touch Onboarding
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-300 mt-1 leading-relaxed max-w-2xl">
+                          Configure qualquer smartphone na bancada (Moto G04, Galaxy S24, iPhone 16) em menos de 10 segundos apenas apontando a câmera para o QR Code do pedestal.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2 text-xs font-bold text-[#00B5E2] bg-white/5 px-4 py-2.5 rounded-2xl border border-white/10 group-hover:border-[#00B5E2]/40 whitespace-nowrap self-start md:self-center">
+                      <span>Gerar QR Code de Bancada</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </div>
                   </div>
                 </div>
 
@@ -3190,6 +3246,284 @@ export const AdminPage: React.FC = () => {
                   </div>
                 </div>
               ))}
+            </div>
+
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* VIEW 7: PROVISIONAMENTO RÁPIDO POR QR CODE DE BANCADA */}
+        {/* ========================================================================= */}
+        {currentView === 'qrcode' && (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-xl font-black text-white flex items-center space-x-2">
+                  <span>Provisionamento Rápido por QR Code</span>
+                  <span className="text-[10px] bg-[#00B5E2] text-[#001438] px-2 py-0.5 rounded-full font-black uppercase">
+                    Zero-Touch
+                  </span>
+                </h3>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  Configure o pedestal em menos de 10 segundos: aponte a câmera do aparelho para vincular a loja, o modelo e travar em tela cheia com tela sempre acesa.
+                </p>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="bg-white/10 hover:bg-white/20 text-white px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center space-x-2 transition-all border border-white/10 shadow-md"
+                >
+                  <Printer className="w-4 h-4 text-[#00B5E2]" />
+                  <span>Imprimir Etiqueta de Pedestal</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              
+              {/* COLUNA DA ESQUERDA: CONFIGURADOR DO PEDESTAL (5 colunas) */}
+              <div className="lg:col-span-5 bg-[#0E172C] border border-white/10 rounded-3xl p-6 space-y-5 shadow-xl">
+                <div className="flex items-center space-x-3 border-b border-white/10 pb-4">
+                  <div className="w-10 h-10 rounded-2xl bg-[#002B7F] text-[#00B5E2] flex items-center justify-center font-bold shadow-md">
+                    <Settings className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black text-white">Identidade da Bancada</h4>
+                    <p className="text-[11px] text-gray-400">Defina os parâmetros do pedestal para geração do QR Code</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Seletor de Loja */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-gray-300 flex items-center space-x-1.5">
+                      <Store className="w-3.5 h-3.5 text-[#00B5E2]" />
+                      <span>Loja Física / Ponto de Venda:</span>
+                    </label>
+                    <select
+                      value={qrSelectedStoreId}
+                      onChange={(e) => setQrSelectedStoreId(e.target.value)}
+                      className="w-full bg-[#131E38] border border-white/10 focus:border-[#00B5E2] rounded-2xl p-3 text-xs text-white outline-none font-medium"
+                    >
+                      {overview?.stores?.map((s: any) => (
+                        <option key={s.id} value={s.id}>
+                          {s.name} ({s.city} - {s.code})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Seletor de Smartphone */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-gray-300 flex items-center space-x-1.5">
+                      <Smartphone className="w-3.5 h-3.5 text-[#00B5E2]" />
+                      <span>Smartphone do Pedestal:</span>
+                    </label>
+                    <select
+                      value={qrSelectedDeviceId}
+                      onChange={(e) => setQrSelectedDeviceId(e.target.value)}
+                      className="w-full bg-[#131E38] border border-white/10 focus:border-[#00B5E2] rounded-2xl p-3 text-xs text-white outline-none font-medium"
+                    >
+                      {overview?.catalog?.map((d: any) => (
+                        <option key={d.id} value={d.id}>
+                          {d.brand} - {d.model_name} (Preço Base: R$ {d.base_price})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Identificador Físico do Pedestal */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-gray-300 flex items-center space-x-1.5">
+                      <Tag className="w-3.5 h-3.5 text-[#00B5E2]" />
+                      <span>Identificador do Pedestal / Posição (opcional):</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={qrPedestalTag}
+                      onChange={(e) => setQrPedestalTag(e.target.value)}
+                      placeholder="Ex: Bancada A - Pedestal 01"
+                      className="w-full bg-[#131E38] border border-white/10 focus:border-[#00B5E2] rounded-2xl p-3 text-xs text-white outline-none"
+                    />
+                  </div>
+
+                  {/* Link Direto Gerado */}
+                  <div className="space-y-1.5 pt-2">
+                    <label className="text-xs font-bold text-gray-300 flex items-center space-x-1.5">
+                      <ExternalLink className="w-3.5 h-3.5 text-[#00B5E2]" />
+                      <span>URL de Provisionamento Direto:</span>
+                    </label>
+                    <div className="bg-black/40 border border-white/10 rounded-2xl p-3 flex items-center justify-between gap-2">
+                      <span className="text-[11px] font-mono text-gray-300 truncate select-all">
+                        {typeof window !== 'undefined' ? window.location.origin : ''}/display?device={qrSelectedDeviceId}&store={qrSelectedStoreId || overview?.stores?.[0]?.id || 'loja-101'}&auto=1
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const url = `${window.location.origin}/display?device=${encodeURIComponent(qrSelectedDeviceId)}&store=${encodeURIComponent(qrSelectedStoreId || overview?.stores?.[0]?.id || 'loja-101')}&auto=1`;
+                          navigator.clipboard.writeText(url);
+                          showToast('Link de provisionamento copiado para a área de transferência!', 'success');
+                        }}
+                        className="p-2 bg-[#002B7F] hover:bg-[#00B5E2] text-white hover:text-[#001438] rounded-xl transition-colors flex-shrink-0 shadow-sm"
+                        title="Copiar Link"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Ações */}
+                  <div className="pt-3 border-t border-white/10 space-y-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const url = `/display?device=${encodeURIComponent(qrSelectedDeviceId)}&store=${encodeURIComponent(qrSelectedStoreId || overview?.stores?.[0]?.id || 'loja-101')}&auto=1`;
+                        window.open(url, '_blank');
+                      }}
+                      className="w-full bg-[#00B5E2] hover:bg-cyan-400 text-[#001438] py-3 rounded-2xl text-xs font-black uppercase tracking-wider flex items-center justify-center space-x-2 transition-all shadow-lg cursor-pointer"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      <span>Testar em Nova Aba no Navegador</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* COLUNA DA DIREITA: TAG FÍSICA COM QR CODE & GUIA DE BLINDAGEM (7 colunas) */}
+              <div className="lg:col-span-7 space-y-6">
+                
+                {/* Placa / Tag Física Estilizada */}
+                <div className="bg-gradient-to-b from-[#0E1B33] to-[#0A1426] border-2 border-[#00B5E2]/40 rounded-3xl p-6 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 transform translate-x-8 -translate-y-8 w-40 h-40 bg-[#00B5E2]/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                  <div className="flex flex-col items-center justify-center bg-white p-4 rounded-3xl shadow-2xl border-4 border-[#002B7F]">
+                    {generatedQrDataUrl ? (
+                      <img 
+                        src={generatedQrDataUrl} 
+                        alt="QR Code de Bancada TIM" 
+                        className="w-52 h-52 object-contain rounded-xl"
+                      />
+                    ) : (
+                      <div className="w-52 h-52 flex items-center justify-center text-gray-500 text-xs">
+                        Gerando QR Code...
+                      </div>
+                    )}
+                    <span className="text-[10px] font-black text-[#002B7F] tracking-widest mt-2 uppercase">
+                      TIM SHOWROOM HUB
+                    </span>
+                  </div>
+
+                  <div className="space-y-4 text-center md:text-left flex-1">
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-center md:justify-start space-x-2">
+                        <TimLogo className="h-5 w-auto" variant="white" />
+                        <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2 py-0.5 rounded-full border border-emerald-500/30">
+                          Pronto para Escanear
+                        </span>
+                      </div>
+                      <h4 className="text-xl font-black text-white mt-2">
+                        {overview?.catalog?.find((d: any) => d.id === qrSelectedDeviceId)?.model_name || 'Smartphone TIM'}
+                      </h4>
+                      <p className="text-xs text-[#00B5E2] font-semibold">
+                        {overview?.stores?.find((s: any) => s.id === (qrSelectedStoreId || overview?.stores?.[0]?.id))?.name || 'Flagship Morumbi Shopping'}
+                      </p>
+                      <p className="text-[11px] text-gray-400 font-mono">
+                        {qrPedestalTag}
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-white/5 rounded-2xl border border-white/10 space-y-1 text-xs">
+                      <div className="font-bold text-white flex items-center justify-center md:justify-start space-x-1.5">
+                        <Sparkles className="w-4 h-4 text-amber-400" />
+                        <span>Instrução Rápida para o Lojista:</span>
+                      </div>
+                      <p className="text-[11px] text-gray-300 leading-relaxed">
+                        Abra a <strong>câmera nativa</strong> do celular e aponte para o QR Code. O aparelho assumirá toda a identidade desta bancada na hora!
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-center md:justify-start space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const a = document.createElement('a');
+                          a.href = generatedQrDataUrl;
+                          a.download = `qrcode-${qrSelectedDeviceId}-${Date.now()}.png`;
+                          a.click();
+                          showToast('Imagem do QR Code baixada!', 'success');
+                        }}
+                        className="text-xs font-bold text-white bg-white/10 hover:bg-white/20 px-3.5 py-2 rounded-xl transition-all flex items-center space-x-1.5 cursor-pointer"
+                      >
+                        <Upload className="w-3.5 h-3.5 rotate-180" />
+                        <span>Baixar PNG</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => window.print()}
+                        className="text-xs font-bold text-[#001438] bg-[#00B5E2] hover:bg-cyan-400 px-3.5 py-2 rounded-xl transition-all flex items-center space-x-1.5 shadow-md font-black cursor-pointer"
+                      >
+                        <Printer className="w-3.5 h-3.5" />
+                        <span>Imprimir Tag</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* GUIAS OPERACIONAIS EM ABAS (ANDROID vs IOS vs ZERO TOUCH) */}
+                <div className="bg-[#0E172C] border border-white/10 rounded-3xl p-6 space-y-4 shadow-xl">
+                  <h4 className="text-sm font-black text-white flex items-center space-x-2">
+                    <ShieldCheck className="w-4 h-4 text-[#00B5E2]" />
+                    <span>Como Funciona o Travamento / Blindagem nos Aparelhos</span>
+                  </h4>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    {/* Guia Android */}
+                    <div className="bg-[#11203D] p-4 rounded-2xl border border-blue-500/20 space-y-2.5">
+                      <div className="flex items-center justify-between font-black text-[#00B5E2]">
+                        <span>🤖 NO ANDROID (Moto G04 / Galaxy)</span>
+                        <span className="text-[10px] bg-blue-500/20 px-2 py-0.5 rounded-full">Fixação de App</span>
+                      </div>
+                      <ol className="space-y-1.5 text-gray-300 text-[11px] list-decimal list-inside leading-relaxed">
+                        <li>Aponte a <strong>câmera</strong> para o QR Code e abra o link.</li>
+                        <li>Toque em <strong>"Ativar Modo Vitrine"</strong> no botão que surge na tela (ativa tela cheia e tela sempre acesa).</li>
+                        <li>Abra a tela de <strong>Apps Recentes</strong> (botão quadrado), toque no ícone do app e escolha <strong>"Fixar aplicativo 📌"</strong>.</li>
+                        <li><strong>Resultado:</strong> O cliente fica 100% impossibilitado de sair, abrir outros apps ou desconfigurar o celular!</li>
+                      </ol>
+                    </div>
+
+                    {/* Guia iOS */}
+                    <div className="bg-[#11203D] p-4 rounded-2xl border border-purple-500/20 space-y-2.5">
+                      <div className="flex items-center justify-between font-black text-purple-300">
+                        <span>🍏 NO IPHONE (iOS 16/17/18)</span>
+                        <span className="text-[10px] bg-purple-500/20 px-2 py-0.5 rounded-full">Acesso Guiado</span>
+                      </div>
+                      <ol className="space-y-1.5 text-gray-300 text-[11px] list-decimal list-inside leading-relaxed">
+                        <li>Aponte a <strong>câmera do iPhone</strong> para o QR Code e abra no Safari.</li>
+                        <li>Toque no botão de <strong>Compartilhar (⬆️)</strong> ➔ <strong>"Adicionar à Tela de Início"</strong>.</li>
+                        <li>Abra pelo ícone criado e dê <strong>3 cliques rápidos no botão lateral (Power)</strong>.</li>
+                        <li>Selecione <strong>Acesso Guiado</strong>: gestos de fechar e botões somem, blindando o iPhone com a senha da loja!</li>
+                      </ol>
+                    </div>
+                  </div>
+
+                  {/* Dica Enterprise */}
+                  <div className="bg-emerald-950/30 border border-emerald-500/30 p-3.5 rounded-2xl flex items-start space-x-3 text-xs">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold text-emerald-300 block">Opção Corporativa Definitiva (Android Enterprise Zero-Touch)</span>
+                      <p className="text-[11px] text-gray-300 mt-0.5 leading-relaxed">
+                        Para ativação em massa nas lojas: ao tirar o celular novo da caixa (na tela "Bem-vindo"), basta <strong>tocar 6 vezes seguidas no centro da tela</strong> para disparar a câmera de provisionamento corporativo do Google, conectando automaticamente ao Wi-Fi e travando o Showroom TIM sem qualquer intervenção manual.
+                      </p>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
             </div>
 
           </div>
