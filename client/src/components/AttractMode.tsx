@@ -191,60 +191,17 @@ export const AttractMode: React.FC<AttractModeProps> = ({
         <div className="absolute inset-0 bg-gradient-to-t from-[#00102E] via-transparent to-[#001438]/85 pointer-events-none" />
       </div>
 
-      {/* 2. HEADER MINIMALISTA COM LOGO OFICIAL TIM & BARRAS DE PROGRESSO DA PLAYLIST */}
-      <header className="relative z-10 px-6 pt-6 pb-2 pointer-events-none space-y-3">
-        {/* Indicador de Múltiplas Mídias em Formato de Histórias / Slides */}
-        {activeItems.length > 1 && (
-          <div className="flex items-center space-x-1.5 w-full">
-            {activeItems.map((item, idx) => (
-              <div 
-                key={item.id || idx}
-                className="h-1 flex-1 rounded-full overflow-hidden bg-white/20 backdrop-blur-md"
-              >
-                <div 
-                  className={`h-full transition-all duration-500 rounded-full ${
-                    idx === safeIndex 
-                      ? 'bg-[#00B5E2] w-full shadow-[0_0_8px_#00B5E2]' 
-                      : idx < safeIndex 
-                        ? 'bg-white/80 w-full' 
-                        : 'w-0'
-                  }`}
-                />
-              </div>
-            ))}
-          </div>
-        )}
+      {/* 2. HEADER MINIMALISTA COM LOGO OFICIAL TIM & OFERTA */}
+      <header className="relative z-10 px-6 pt-6 pb-2 pointer-events-none flex items-center justify-between">
+        <div className="flex items-center">
+          <TimLogo className="h-5 w-auto" variant="white" />
+        </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <TimLogo className="h-5 w-auto" variant="white" />
-          </div>
-
-          <div className="flex items-center space-x-2">
-            {/* Tag discreta com tipo de mídia e tempo */}
-            {activeItems.length > 1 && (
-              <div className="bg-black/50 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10 flex items-center space-x-1.5 text-[9px] text-gray-300">
-                {currentItem?.type === 'video' ? (
-                  <>
-                    <Film className="w-2.5 h-2.5 text-[#00B5E2]" />
-                    <span>Vídeo ({safeIndex + 1}/{activeItems.length})</span>
-                  </>
-                ) : (
-                  <>
-                    <Clock className="w-2.5 h-2.5 text-amber-400" />
-                    <span>{formatMediaDuration(currentItem.duration_sec)} ({safeIndex + 1}/{activeItems.length})</span>
-                  </>
-                )}
-              </div>
-            )}
-
-            <div className="bg-[#002B7F]/85 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 flex items-center space-x-1.5 shadow-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#00B5E2] animate-ping" />
-              <span className="text-[9px] font-bold uppercase tracking-wider text-white">
-                {planBadge}
-              </span>
-            </div>
-          </div>
+        <div className="bg-[#002B7F]/85 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 flex items-center space-x-1.5 shadow-sm">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#00B5E2] animate-ping" />
+          <span className="text-[9px] font-bold uppercase tracking-wider text-white">
+            {planBadge}
+          </span>
         </div>
       </header>
 
