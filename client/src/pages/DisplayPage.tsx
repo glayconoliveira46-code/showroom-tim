@@ -409,6 +409,10 @@ export const DisplayPage: React.FC = () => {
                 <span className="text-gray-400">Tela Sempre Acesa:</span>
                 <span className="font-bold text-emerald-400">Wake Lock Ativo ✅</span>
               </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Proteção de Tela:</span>
+                <span className="font-bold text-emerald-400">Anti-Burn-in & Pixel Shift Ativo 🛡️</span>
+              </div>
             </div>
 
             {/* Instruções Dinâmicas para Android vs iOS */}

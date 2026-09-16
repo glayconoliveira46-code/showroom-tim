@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Sparkles, ArrowRight, Film, Image as ImageIcon, Clock } from 'lucide-react';
+import { usePixelShift } from '../hooks/usePixelShift';
 
 export interface MediaPlaylistItem {
   id: string;
@@ -59,6 +60,9 @@ export const AttractMode: React.FC<AttractModeProps> = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mediaLoaded, setMediaLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  // Motor Anti-Burn-in (Pixel Shift contínuo para displays AMOLED/OLED/LCD)
+  const { shiftStyle } = usePixelShift({ intervalMs: 60000, maxOffsetPx: 3 });
 
   // Garante que o índice não fique fora dos limites se a playlist mudar
   const safeIndex = currentIndex < activeItems.length ? currentIndex : 0;
@@ -190,8 +194,11 @@ export const AttractMode: React.FC<AttractModeProps> = ({
         <div className="absolute inset-0 bg-gradient-to-t from-[#00102E] via-transparent to-[#001438]/85 pointer-events-none" />
       </div>
 
-      {/* 2. HEADER ULTRA-MINIMALISTA (APENAS BADGE DE OFERTA NO TOPO) */}
-      <header className="relative z-10 px-6 pt-6 pb-2 pointer-events-none flex items-center justify-end">
+      {/* 2. HEADER ULTRA-MINIMALISTA COM MOTOR ANTI-BURN-IN (PIXEL SHIFT) */}
+      <header 
+        style={shiftStyle}
+        className="relative z-10 px-6 pt-6 pb-2 pointer-events-none flex items-center justify-end"
+      >
         {planBadge && (
           <div className="bg-[#002B7F]/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 flex items-center space-x-1.5 shadow-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-[#00B5E2] animate-ping" />
@@ -205,8 +212,11 @@ export const AttractMode: React.FC<AttractModeProps> = ({
       {/* 3. ESPAÇO CENTRAL LIVRE PARA O VÍDEO / PÔSTER */}
       <div className="relative z-10 flex-1 pointer-events-none" />
 
-      {/* 4. RODAPÉ DE ALTO IMPACTO (OFERTA + BOTÃO ENCARTE) */}
-      <footer className="relative z-10 px-6 pb-6 pt-3 pointer-events-none">
+      {/* 4. RODAPÉ DE ALTO IMPACTO (OFERTA + BOTÃO ENCARTE COM PIXEL SHIFT) */}
+      <footer 
+        style={shiftStyle}
+        className="relative z-10 px-6 pb-6 pt-3 pointer-events-none"
+      >
         
         {/* Nome do Aparelho & Tagline */}
         <div className="mb-3 text-left">

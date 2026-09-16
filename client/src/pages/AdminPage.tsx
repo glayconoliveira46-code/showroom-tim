@@ -3520,6 +3520,17 @@ export const AdminPage: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* Motor Anti-Burn-in & Pixel Shift */}
+                  <div className="bg-blue-950/30 border border-[#00B5E2]/40 p-3.5 rounded-2xl flex items-start space-x-3 text-xs">
+                    <ShieldCheck className="w-5 h-5 text-[#00B5E2] flex-shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold text-[#00B5E2] block">Proteção de Painel: Motor Anti-Burn-in & Pixel Shift Ativo 🛡️</span>
+                      <p className="text-[11px] text-gray-300 mt-0.5 leading-relaxed">
+                        Para proteger telas AMOLED / OLED (Galaxy S24 Ultra, iPhones Pro e Z Fold), o sistema rotaciona imperceptivelmente os elementos estáticos a cada 60 segundos em 3 pixels, revezando a carga elétrica dos subpixels e eliminando qualquer risco de queima ou retenção permanente de imagem nas lojas.
+                      </p>
+                    </div>
+                  </div>
+
                 </div>
 
               </div>
