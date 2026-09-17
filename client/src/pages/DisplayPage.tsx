@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { AttractMode, MediaPlaylistItem } from '../components/AttractMode';
 import { InteractiveHub, PlanOption } from '../components/InteractiveHub';
 import { PinModal } from '../components/PinModal';
+import { DeviceSelectionView, SelectableDevice } from '../components/DeviceSelectionView';
+import { detectHardwareDevice } from '../utils/deviceDetector';
 import { useInactivity } from '../hooks/useInactivity';
 import { Smartphone, Maximize, Lock, ShieldCheck, Sparkles, X, CheckCircle2, ChevronRight } from 'lucide-react';
 
@@ -9,6 +11,8 @@ interface DeviceItem {
   id: string;
   brand: string;
   model_name: string;
+  tagline?: string;
+  base_price?: number;
 }
 
 interface StoreItem {
@@ -50,7 +54,7 @@ export const DisplayPage: React.FC = () => {
   const tapTimerRef = useRef<NodeJS.Timeout | null>(null);
   const campaignRef = useRef<CampaignData | null>(null);
 
-  // Identidade fixa do pedestal (Query param > LocalStorage > Default)
+  // Identidade fixa do pedestal (Query param > LocalStorage)
   const getInitialDeviceId = () => {
     const params = new URLSearchParams(window.location.search);
     const paramDev = params.get('device');
@@ -58,7 +62,7 @@ export const DisplayPage: React.FC = () => {
       localStorage.setItem('showroom_device_id', paramDev);
       return paramDev;
     }
-    return localStorage.getItem('showroom_device_id') || 'samsung-s24-ultra';
+    return localStorage.getItem('showroom_device_id') || '';
   };
 
   const getInitialStoreId = () => {
@@ -73,6 +77,9 @@ export const DisplayPage: React.FC = () => {
 
   const [pedestalDeviceId, setPedestalDeviceId] = useState<string>(getInitialDeviceId);
   const [pedestalStoreId, setPedestalStoreId] = useState<string>(getInitialStoreId);
+  const [isAutoDetecting, setIsAutoDetecting] = useState<boolean>(!getInitialDeviceId());
+  const [showDeviceSelection, setShowDeviceSelection] = useState<boolean>(false);
+  const [detectionHint, setDetectionHint] = useState<string>('');
 
   const loadCampaign = async (devId = pedestalDeviceId, storeId = pedestalStoreId) => {
     try {
@@ -86,24 +93,82 @@ export const DisplayPage: React.FC = () => {
           setCampaign(data);
           campaignRef.current = data;
         }
+        return data;
       }
     } catch (err) {
       console.warn('Usando dados offline', err);
     }
+    return null;
   };
 
-  const handleSavePedestalConfig = (newDeviceId: string, newStoreId: string) => {
+  const handleSavePedestalConfig = (newDeviceId: string, newStoreId?: string) => {
+    const finalStore = newStoreId !== undefined ? newStoreId : pedestalStoreId;
     setPedestalDeviceId(newDeviceId);
-    setPedestalStoreId(newStoreId);
     localStorage.setItem('showroom_device_id', newDeviceId);
-    if (newStoreId) localStorage.setItem('showroom_store_id', newStoreId);
-    else localStorage.removeItem('showroom_store_id');
-    loadCampaign(newDeviceId, newStoreId);
-    showToast(`Pedestal configurado: ${newDeviceId}`);
+    if (finalStore) {
+      setPedestalStoreId(finalStore);
+      localStorage.setItem('showroom_store_id', finalStore);
+    }
+    setShowDeviceSelection(false);
+    setIsAutoDetecting(false);
+    loadCampaign(newDeviceId, finalStore);
+    showToast(`Pedestal vinculado com sucesso!`);
   };
+
+  // Motor de inicialização e detecção automática de hardware
+  useEffect(() => {
+    let isMounted = true;
+
+    const runSetupAndDetection = async () => {
+      // 1. Se já possui aparelho configurado via URL ou localStorage, inicia direto
+      if (pedestalDeviceId) {
+        await loadCampaign(pedestalDeviceId, pedestalStoreId);
+        if (isMounted) setIsAutoDetecting(false);
+        return;
+      }
+
+      // 2. Se não possui aparelho definido, executa o Motor de Detecção Automática
+      setIsAutoDetecting(true);
+      try {
+        const detection = await detectHardwareDevice();
+        console.log('[AutoDetect] Resultado da detecção de hardware:', detection);
+
+        if (detection.confidence === 'high' && detection.matchedDeviceId) {
+          // Identificou com certeza absoluta (ex: Moto G04 no Android)
+          if (!isMounted) return;
+          setPedestalDeviceId(detection.matchedDeviceId);
+          localStorage.setItem('showroom_device_id', detection.matchedDeviceId);
+          showToast(`✨ Smartphone ${detection.detectedModelName} identificado automaticamente!`);
+          await loadCampaign(detection.matchedDeviceId, pedestalStoreId);
+          setIsAutoDetecting(false);
+        } else {
+          // Detecção inconclusiva ou não catalogada: abre a jornada amigável com o bullet de aviso
+          if (!isMounted) return;
+          setDetectionHint(detection.rawIdentifier || '');
+          // Carrega o catálogo para alimentar os cards da lista de seleção
+          await loadCampaign('', pedestalStoreId);
+          setShowDeviceSelection(true);
+          setIsAutoDetecting(false);
+        }
+      } catch (err) {
+        console.error('Erro ao executar auto-detecção:', err);
+        if (!isMounted) return;
+        await loadCampaign('', pedestalStoreId);
+        setShowDeviceSelection(true);
+        setIsAutoDetecting(false);
+      }
+    };
+
+    runSetupAndDetection();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
-    loadCampaign();
+    if (!pedestalDeviceId) return;
+    loadCampaign(pedestalDeviceId, pedestalStoreId);
 
     const eventSource = new EventSource('/api/display/stream');
 
@@ -253,6 +318,39 @@ export const DisplayPage: React.FC = () => {
     }
   };
 
+  if (isAutoDetecting) {
+    return (
+      <div className="w-full h-full min-h-screen bg-[#001438] flex flex-col items-center justify-center text-white space-y-4 font-sans select-none">
+        <div className="w-10 h-10 border-4 border-[#00B5E2] border-t-transparent rounded-full animate-spin" />
+        <div className="text-center space-y-1">
+          <h2 className="text-base font-bold text-white">Identificando Smartphone...</h2>
+          <p className="text-xs text-gray-400">Consultando telemetria de hardware e catálogo TIM</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (showDeviceSelection || !pedestalDeviceId) {
+    const fallbackCatalog: SelectableDevice[] = [
+      { id: 'samsung-s24-ultra', brand: 'Samsung', model_name: 'Galaxy S24 Ultra', tagline: 'O smartphone com Inteligência Artificial definitiva', base_price: 7999 },
+      { id: 'apple-iphone-16-pro', brand: 'Apple', model_name: 'iPhone 16 Pro', tagline: 'Titânio. Tão forte. Tão leve. Tão Pro.', base_price: 9299 },
+      { id: 'samsung-galaxy-z-fold-1789502172848', brand: 'Samsung', model_name: 'Galaxy Z Fold', tagline: 'O smartphone dobrável definitivo com Galaxy AI', base_price: 13799 },
+      { id: 'motorola-moto-g04', brand: 'Motorola', model_name: 'Moto G04', tagline: 'Design fino com tela fluida de 90Hz, som estéreo Dolby Atmos e super bateria', base_price: 799 }
+    ];
+
+    const selectableList = (campaign?.available_devices && campaign.available_devices.length > 0)
+      ? campaign.available_devices
+      : fallbackCatalog;
+
+    return (
+      <DeviceSelectionView
+        devices={selectableList}
+        rawDetectedHint={detectionHint}
+        onSelectDevice={(deviceId) => handleSavePedestalConfig(deviceId)}
+      />
+    );
+  }
+
   if (!campaign) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center bg-[#001438] text-white p-6 text-center">
@@ -283,13 +381,21 @@ export const DisplayPage: React.FC = () => {
 
       {isUnlocked && (
         <div className="absolute top-0 left-0 right-0 z-50 bg-amber-400 text-black px-4 py-2 flex items-center justify-between text-xs font-bold shadow-md">
-          <span>🔓 MODO PROMOTOR ATIVO</span>
-          <button 
-            onClick={() => { setIsUnlocked(false); handleBackToAttract(); }}
-            className="bg-[#002B7F] text-white px-2.5 py-1 rounded-lg text-[10px]"
-          >
-            Bloquear
-          </button>
+          <span className="truncate mr-2">🔓 MODO PROMOTOR ({campaign.model_name})</span>
+          <div className="flex items-center space-x-2 shrink-0">
+            <button 
+              onClick={() => setShowDeviceSelection(true)}
+              className="bg-black hover:bg-black/80 text-white px-2.5 py-1 rounded-lg text-[10px] cursor-pointer"
+            >
+              Trocar Aparelho
+            </button>
+            <button 
+              onClick={() => { setIsUnlocked(false); handleBackToAttract(); }}
+              className="bg-[#002B7F] hover:bg-[#0038A8] text-white px-2.5 py-1 rounded-lg text-[10px] cursor-pointer"
+            >
+              Bloquear
+            </button>
+          </div>
         </div>
       )}
 

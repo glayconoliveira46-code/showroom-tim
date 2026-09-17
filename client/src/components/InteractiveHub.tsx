@@ -84,31 +84,31 @@ export const InteractiveHub: React.FC<InteractiveHubProps> = ({
   return (
     <div className="relative w-full h-full bg-[#F4F6FB] text-gray-900 flex flex-col overflow-hidden select-none font-sans">
       
-      {/* Header Superior Minimalista com Logo TIM Azul Oficial e Safe Area Insets iOS */}
+      {/* Header Superior Minimalista com Logo TIM Oficial e Safe Area Insets iOS */}
       <header 
         style={{
           paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
           paddingBottom: '12px'
         }}
-        className="px-5 flex items-center justify-between bg-white border-b border-gray-150 shadow-sm z-10 shrink-0"
+        className="px-5 flex items-center justify-between bg-[#001438] text-white border-b border-white/10 shadow-md z-10 shrink-0"
       >
         <div className="flex items-center space-x-3">
           <button 
             onClick={onBackToAttract}
-            className="p-1.5 rounded-xl bg-gray-100 active:bg-gray-200 text-gray-600 transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl bg-white/10 active:bg-white/20 text-white transition-colors cursor-pointer"
             aria-label="Voltar para a vitrine"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
           <div onClick={onTripleTapLogo} className="cursor-pointer active:opacity-75 flex items-center">
-            <TimLogo className="h-5 w-auto" variant="blue" />
+            <TimLogo className="h-5 w-auto" variant="white" />
           </div>
         </div>
 
         {/* Badge Dinâmico do Plano Selecionado */}
-        <div className="bg-[#002B7F] text-white px-3 py-1 rounded-full flex items-center space-x-1.5 shadow-sm">
+        <div className="bg-[#002B7F] text-white px-3 py-1 rounded-full flex items-center space-x-1.5 shadow-sm border border-[#00B5E2]/40">
           <ShieldCheck className="w-3 h-3 text-[#00B5E2]" />
-          <span className="text-[10px] font-bold uppercase tracking-wider">{currentPlan.plan_badge}</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-300">{currentPlan.plan_badge}</span>
         </div>
       </header>
 
