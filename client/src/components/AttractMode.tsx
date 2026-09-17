@@ -203,13 +203,16 @@ export const AttractMode: React.FC<AttractModeProps> = ({
         <div className="absolute inset-0 bg-gradient-to-t from-[#00102E] via-transparent to-[#001438]/85 pointer-events-none" />
       </div>
 
-      {/* 2. HEADER ULTRA-MINIMALISTA COM MOTOR ANTI-BURN-IN (PIXEL SHIFT) */}
+      {/* 2. HEADER ULTRA-MINIMALISTA COM MOTOR ANTI-BURN-IN (PIXEL SHIFT) E SAFE AREA */}
       <header 
-        style={shiftStyle}
-        className="relative z-10 px-6 pt-6 pb-2 pointer-events-none flex items-center justify-end"
+        style={{
+          ...shiftStyle,
+          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)'
+        }}
+        className="relative z-10 px-6 pb-2 pointer-events-none flex items-center justify-end"
       >
         {planBadge && (
-          <div className="bg-[#002B7F]/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 flex items-center space-x-1.5 shadow-sm">
+          <div className="bg-[#002B7F]/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 flex items-center space-x-1.5 shadow-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-[#00B5E2] animate-ping" />
             <span className="text-[9px] font-bold uppercase tracking-wider text-white">
               {planBadge}
@@ -221,10 +224,13 @@ export const AttractMode: React.FC<AttractModeProps> = ({
       {/* 3. ESPAÇO CENTRAL LIVRE PARA O VÍDEO / PÔSTER */}
       <div className="relative z-10 flex-1 pointer-events-none" />
 
-      {/* 4. RODAPÉ DE ALTO IMPACTO (OFERTA + BOTÃO ENCARTE COM PIXEL SHIFT) */}
+      {/* 4. RODAPÉ DE ALTO IMPACTO (OFERTA + BOTÃO ENCARTE COM PIXEL SHIFT E SAFE AREA) */}
       <footer 
-        style={shiftStyle}
-        className="relative z-10 px-6 pb-6 pt-3 pointer-events-none"
+        style={{
+          ...shiftStyle,
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 20px)'
+        }}
+        className="relative z-10 px-6 pt-3 pointer-events-none"
       >
         
         {/* Nome do Aparelho & Tagline */}

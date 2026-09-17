@@ -40,7 +40,7 @@ export default function App() {
       document.body.style.height = 'auto';
     } else {
       document.body.style.overflow = 'hidden';
-      document.body.style.height = '100vh';
+      document.body.style.height = '100dvh';
     }
   }, [currentRoute]);
 
@@ -55,7 +55,7 @@ export default function App() {
     <div className={`w-full relative ${
       currentRoute === 'admin' 
         ? 'min-h-screen overflow-y-auto bg-[#070C18]' 
-        : 'w-screen h-screen overflow-hidden bg-[#001438]'
+        : 'w-screen h-[100dvh] overflow-hidden bg-[#001438]'
     }`}>
       {/* Roteamento Seguro: Admin protegido com autenticação ou Display autônomo */}
       {currentRoute === 'admin' ? renderAdminView() : <DisplayPage />}

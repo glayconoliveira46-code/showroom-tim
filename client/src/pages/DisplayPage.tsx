@@ -359,7 +359,12 @@ export const DisplayPage: React.FC = () => {
 
       {/* BOTÃO FLUTUANTE DISCRETO PARA ATIVAR TELA CHEIA / AJUSTAR PEDESTAL SE NÃO ESTIVER EM FULLSCREEN */}
       {!isFullscreenActive && !isStandalone && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-40">
+        <div 
+          style={{
+            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)'
+          }}
+          className="absolute left-1/2 -translate-x-1/2 z-40"
+        >
           <button
             onClick={() => setShowKioskModal(true)}
             className="flex items-center space-x-1.5 bg-black/60 backdrop-blur-md hover:bg-black/80 border border-white/20 text-white/90 px-3 py-1.5 rounded-full text-[11px] font-bold shadow-lg transition-transform active:scale-95"

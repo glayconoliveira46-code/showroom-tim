@@ -84,12 +84,19 @@ export const InteractiveHub: React.FC<InteractiveHubProps> = ({
   return (
     <div className="relative w-full h-full bg-[#F4F6FB] text-gray-900 flex flex-col overflow-hidden select-none font-sans">
       
-      {/* Header Superior Minimalista com Logo TIM Azul Oficial */}
-      <header className="px-5 pt-4 pb-3 flex items-center justify-between bg-white border-b border-gray-150 shadow-sm z-10">
+      {/* Header Superior Minimalista com Logo TIM Azul Oficial e Safe Area Insets iOS */}
+      <header 
+        style={{
+          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
+          paddingBottom: '12px'
+        }}
+        className="px-5 flex items-center justify-between bg-white border-b border-gray-150 shadow-sm z-10 shrink-0"
+      >
         <div className="flex items-center space-x-3">
           <button 
             onClick={onBackToAttract}
-            className="p-1.5 rounded-xl bg-gray-100 active:bg-gray-200 text-gray-600 transition-colors"
+            className="p-1.5 rounded-xl bg-gray-100 active:bg-gray-200 text-gray-600 transition-colors cursor-pointer"
+            aria-label="Voltar para a vitrine"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
@@ -99,14 +106,19 @@ export const InteractiveHub: React.FC<InteractiveHubProps> = ({
         </div>
 
         {/* Badge Dinâmico do Plano Selecionado */}
-        <div className="bg-[#002B7F] text-white px-2.5 py-0.5 rounded-full flex items-center space-x-1.5 shadow-sm">
+        <div className="bg-[#002B7F] text-white px-3 py-1 rounded-full flex items-center space-x-1.5 shadow-sm">
           <ShieldCheck className="w-3 h-3 text-[#00B5E2]" />
-          <span className="text-[9px] font-bold uppercase tracking-wider">{currentPlan.plan_badge}</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider">{currentPlan.plan_badge}</span>
         </div>
       </header>
 
       {/* Conteúdo com Rolagem Suave */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-32">
+      <div 
+        style={{
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 120px)'
+        }}
+        className="flex-1 overflow-y-auto px-4 py-4 space-y-4"
+      >
         
         {/* Banner do Aparelho TIM */}
         <div className="bg-gradient-to-r from-[#002B7F] to-[#0054A6] p-5 rounded-3xl text-white shadow-md relative overflow-hidden">
@@ -301,23 +313,29 @@ export const InteractiveHub: React.FC<InteractiveHubProps> = ({
 
       </div>
 
-      {/* FOOTER FIXO DE VAREJO COM O VALOR DO PLANO SIMULADO */}
-      <footer className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] flex items-center justify-between z-20">
+      {/* FOOTER FIXO DE VAREJO COM O VALOR DO PLANO SIMULADO E SAFE AREA INSET */}
+      <footer 
+        style={{
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)',
+          paddingTop: '14px'
+        }}
+        className="absolute bottom-0 left-0 right-0 px-5 bg-white border-t border-gray-200 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] flex items-center justify-between z-20"
+      >
         <div>
           <span className="text-[9px] font-bold text-gray-400 uppercase block tracking-wider">
             Com {currentPlan.plan_name}
           </span>
-          <div className="text-lg font-black text-[#002B7F] tracking-tight leading-none">
+          <div className="text-lg font-black text-[#002B7F] tracking-tight leading-none mt-0.5">
             {currentPlan.price_installments}
           </div>
-          <span className="text-[10px] text-gray-500">
+          <span className="text-[10px] text-gray-500 block mt-0.5">
             ou R$ {currentPlan.price_cash.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} à vista
           </span>
         </div>
 
         <button 
           onClick={onBackToAttract}
-          className="bg-[#002B7F] active:bg-[#001F5C] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-md shadow-blue-900/20 transition-all"
+          className="bg-[#002B7F] active:bg-[#001F5C] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-md shadow-blue-900/20 transition-all cursor-pointer"
         >
           Voltar ao Vídeo
         </button>
