@@ -5,7 +5,8 @@ import { PinModal } from '../components/PinModal';
 import { DeviceSelectionView, SelectableDevice } from '../components/DeviceSelectionView';
 import { detectHardwareDevice } from '../utils/deviceDetector';
 import { useInactivity } from '../hooks/useInactivity';
-import { Smartphone, Maximize, Lock, ShieldCheck, Sparkles, X, CheckCircle2, ChevronRight } from 'lucide-react';
+import { useKeepAwake } from '../hooks/useKeepAwake';
+import { Smartphone, Maximize, Lock, ShieldCheck, Sparkles, X, CheckCircle2, ChevronRight, Sun, Battery } from 'lucide-react';
 
 interface DeviceItem {
   id: string;
@@ -48,7 +49,11 @@ export const DisplayPage: React.FC = () => {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showKioskModal, setShowKioskModal] = useState(false);
+  const [showIosTipsModal, setShowIosTipsModal] = useState(false);
   const [isFullscreenActive, setIsFullscreenActive] = useState(false);
+
+  // Motor Inteligente de Manutenção de Tela Acesa (Wake Lock + NoSleep Vídeo Contínuo)
+  const { isActive: isKeepAwakeActive, method: keepAwakeMethod } = useKeepAwake();
 
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -214,26 +219,8 @@ export const DisplayPage: React.FC = () => {
     };
   }, [pedestalDeviceId, pedestalStoreId]);
 
-  // Screen Wake Lock para manter a tela do celular sempre acesa no pedestal da loja
+  // Listeners para inicialização de QR Code e Fullscreen
   useEffect(() => {
-    let wakeLock: any = null;
-    const acquireWakeLock = async () => {
-      if ('wakeLock' in navigator) {
-        try {
-          wakeLock = await (navigator as any).wakeLock.request('screen');
-          console.log('Screen Wake Lock ativo: tela não apagará na loja');
-        } catch (e) {
-          console.warn('Wake lock não disponível:', e);
-        }
-      }
-    };
-    acquireWakeLock();
-
-    const handleVisibility = () => {
-      if (document.visibilityState === 'visible') acquireWakeLock();
-    };
-    document.addEventListener('visibilitychange', handleVisibility);
-
     // Se veio via escaneamento de QR Code (?auto=1), abre o assistente de vitrine
     const params = new URLSearchParams(window.location.search);
     if (params.get('auto') === '1') {
@@ -246,11 +233,7 @@ export const DisplayPage: React.FC = () => {
     document.addEventListener('fullscreenchange', handleFsChange);
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibility);
       document.removeEventListener('fullscreenchange', handleFsChange);
-      if (wakeLock) {
-        try { wakeLock.release(); } catch (_) {}
-      }
     };
   }, []);
 
@@ -381,8 +364,22 @@ export const DisplayPage: React.FC = () => {
 
       {isUnlocked && (
         <div className="absolute top-0 left-0 right-0 z-50 bg-amber-400 text-black px-4 py-2 flex items-center justify-between text-xs font-bold shadow-md">
-          <span className="truncate mr-2">🔓 MODO PROMOTOR ({campaign.model_name})</span>
+          <div className="flex items-center space-x-2 truncate mr-2">
+            <span>🔓 MODO PROMOTOR ({campaign.model_name})</span>
+            <span className="inline-flex items-center gap-1 bg-amber-900/15 text-amber-950 px-2 py-0.5 rounded-full text-[9px] font-mono">
+              <span className={`w-1.5 h-1.5 rounded-full ${isKeepAwakeActive ? 'bg-emerald-600 animate-pulse' : 'bg-amber-600'}`} />
+              Tela: {isKeepAwakeActive ? 'Sempre Acesa' : 'Aguardando toque'}
+            </span>
+          </div>
           <div className="flex items-center space-x-2 shrink-0">
+            {isIOS && (
+              <button 
+                onClick={() => setShowIosTipsModal(true)}
+                className="bg-black/75 hover:bg-black text-amber-300 px-2.5 py-1 rounded-lg text-[10px] cursor-pointer flex items-center space-x-1"
+              >
+                <span>Dica iOS</span>
+              </button>
+            )}
             <button 
               onClick={() => setShowDeviceSelection(true)}
               className="bg-black hover:bg-black/80 text-white px-2.5 py-1 rounded-lg text-[10px] cursor-pointer"
@@ -573,6 +570,71 @@ export const DisplayPage: React.FC = () => {
                 Fechar Assistente
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE INSTRUÇÕES DE BLOQUEIO / TELA ACESA PARA TOTENS IOS (IPHONE / IPAD) */}
+      {showIosTipsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
+          <div className="bg-[#0A1224] border border-[#00B5E2]/40 rounded-3xl p-6 max-w-sm w-full shadow-2xl text-white space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center space-x-2">
+                <span className="text-xl">🍏</span>
+                <h3 className="text-sm font-black text-white">
+                  Tela Sempre Acesa no iOS
+                </h3>
+              </div>
+              <button 
+                onClick={() => setShowIosTipsModal(false)}
+                className="text-gray-400 hover:text-white p-1"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs text-gray-300">
+              <p>
+                O app já utiliza <strong>Wake Lock + Vídeo Silencioso</strong> para impedir que a tela apague. No iOS da Apple, ajuste estas duas opções no aparelho para blindar 100%:
+              </p>
+
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-1">
+                <div className="font-bold text-cyan-300 flex items-center space-x-1.5">
+                  <Sun className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>1. Bloqueio Automático:</span>
+                </div>
+                <p className="text-[11px] text-gray-400 pl-5">
+                  Vá em <strong>Ajustes &gt; Tela e Brilho &gt; Bloqueio Automático</strong> e marque <strong>"Nunca"</strong>.
+                </p>
+              </div>
+
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-1">
+                <div className="font-bold text-amber-300 flex items-center space-x-1.5">
+                  <Battery className="w-3.5 h-3.5 text-amber-400" />
+                  <span>2. Desativar Pouca Energia:</span>
+                </div>
+                <p className="text-[11px] text-gray-400 pl-5">
+                  Em <strong>Ajustes &gt; Bateria</strong>, desligue o <strong>Modo Pouca Energia</strong> (a bateria amarela força o desligamento da tela aos 30s).
+                </p>
+              </div>
+
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-1">
+                <div className="font-bold text-emerald-300 flex items-center space-x-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>3. Modo Totem (Acesso Guiado):</span>
+                </div>
+                <p className="text-[11px] text-gray-400 pl-5">
+                  Em <strong>Ajustes &gt; Acessibilidade &gt; Acesso Guiado</strong>, ative. No Safari com o Showroom aberto, clique <strong>3 vezes no botão lateral</strong> para travar a tela!
+                </p>
+              </div>
+            </div>
+
+            <button 
+              onClick={() => setShowIosTipsModal(false)}
+              className="w-full bg-[#00B5E2] hover:bg-[#00c8f8] text-[#001438] py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-colors cursor-pointer"
+            >
+              Entendi e Configurar
+            </button>
           </div>
         </div>
       )}
