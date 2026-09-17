@@ -183,6 +183,15 @@ export const AttractMode: React.FC<AttractModeProps> = ({
               alt={currentItem.title}
               style={mediaStyle}
               onLoad={() => setMediaLoaded(true)}
+              onError={(e) => {
+                console.warn('Erro ao carregar imagem na vitrine:', currentItem.url);
+                setMediaLoaded(true);
+                if (activeItems.length > 1) {
+                  advanceNext();
+                } else {
+                  (e.currentTarget as HTMLImageElement).src = '/posters/tim-5g-standalone.svg';
+                }
+              }}
               className={`w-full h-full transition-all duration-1000 transform ${
                 mediaLoaded ? 'opacity-95' : 'opacity-0'
               }`}

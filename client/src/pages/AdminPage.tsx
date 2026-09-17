@@ -7,7 +7,8 @@ import {
   LayoutDashboard, Film, Clock, Settings, ExternalLink, ArrowLeft, Play,
   Tv, MonitorSmartphone, HelpCircle, FileVideo, PlusCircle,
   Search, Trash2, ArrowUp, ArrowDown, Image as ImageIcon, ChevronLeft,
-  ChevronRight, X, FolderOpen, Database, RefreshCw, QrCode, Copy, Printer
+  ChevronRight, X, FolderOpen, Database, RefreshCw, QrCode, Copy, Printer,
+  LogOut, User as UserIcon
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { TimLogo } from '../components/TimLogo';
@@ -15,7 +16,37 @@ import { calculateTelecomPricing, PricingCalculationResult } from '../utils/pric
 
 type AdminView = 'dashboard' | 'pricing' | 'media' | 'devices' | 'plans' | 'clusters' | 'simulators' | 'qrcode';
 
-export const AdminPage: React.FC = () => {
+interface AdminPageProps {
+  onLogout?: () => void;
+}
+
+export const AdminPage: React.FC<AdminPageProps> = ({ onLogout }) => {
+  const getAdminToken = () => localStorage.getItem('tim_admin_token') || sessionStorage.getItem('tim_admin_token') || '';
+
+  const authFetch = async (url: string, init?: RequestInit): Promise<Response> => {
+    const token = getAdminToken();
+    const headers = new Headers(init?.headers || {});
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+    const res = await fetch(url, {
+      ...init,
+      headers
+    });
+    if (res.status === 401) {
+      localStorage.removeItem('tim_admin_token');
+      localStorage.removeItem('tim_admin_user');
+      sessionStorage.removeItem('tim_admin_token');
+      sessionStorage.removeItem('tim_admin_user');
+      if (onLogout) {
+        onLogout();
+      } else {
+        window.location.reload();
+      }
+    }
+    return res;
+  };
+
   const [currentView, setCurrentView] = useState<AdminView>('dashboard');
   const [overview, setOverview] = useState<any>(null);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>('');
@@ -127,7 +158,7 @@ export const AdminPage: React.FC = () => {
   // Carrega visão inicial da API
   const fetchOverview = async (targetIdToSelect?: string) => {
     try {
-      const res = await fetch('/api/admin/overview');
+      const res = await authFetch('/api/admin/overview');
       if (res.ok) {
         const data = await res.json();
         setOverview(data);
@@ -294,7 +325,7 @@ export const AdminPage: React.FC = () => {
   // Salvar Rascunho
   const handleSaveDraftSilently = async () => {
     try {
-      await fetch('/api/admin/save-device-draft', {
+      await authFetch('/api/admin/save-device-draft', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -337,7 +368,7 @@ export const AdminPage: React.FC = () => {
   const handlePublishOffers = async () => {
     setIsPublishing(true);
     try {
-      const res = await fetch('/api/admin/publish-device-offers', {
+      const res = await authFetch('/api/admin/publish-device-offers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -554,7 +585,7 @@ export const AdminPage: React.FC = () => {
     formData.append('duration_sec', String(mediaDurationSec || 7));
 
     try {
-      const res = await fetch('/api/admin/media-library/upload', {
+      const res = await authFetch('/api/admin/media-library/upload', {
         method: 'POST',
         body: formData
       });
@@ -601,7 +632,7 @@ export const AdminPage: React.FC = () => {
     if (!currentMediaDevice) return;
     setIsSavingMediaDraft(true);
     try {
-      const res = await fetch('/api/admin/device-playlist/draft', {
+      const res = await authFetch('/api/admin/device-playlist/draft', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -633,7 +664,7 @@ export const AdminPage: React.FC = () => {
       return;
     }
     try {
-      const res = await fetch(`/api/admin/media-library/${id}`, {
+      const res = await authFetch(`/api/admin/media-library/${id}`, {
         method: 'DELETE'
       });
       if (res.ok) {
@@ -670,7 +701,7 @@ export const AdminPage: React.FC = () => {
     if (!currentMediaDevice) return;
     setIsPublishingMedia(true);
     try {
-      const res = await fetch('/api/admin/device-playlist/update', {
+      const res = await authFetch('/api/admin/device-playlist/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -711,7 +742,7 @@ export const AdminPage: React.FC = () => {
     if (devVideoFile) formData.append('video', devVideoFile);
 
     try {
-      const res = await fetch('/api/admin/create-device-full', {
+      const res = await authFetch('/api/admin/create-device-full', {
         method: 'POST',
         body: formData
       });
@@ -748,7 +779,7 @@ export const AdminPage: React.FC = () => {
     formData.append('video', mediaFile);
 
     try {
-      const res = await fetch('/api/admin/update-device-media', {
+      const res = await authFetch('/api/admin/update-device-media', {
         method: 'POST',
         body: formData
       });
@@ -773,7 +804,7 @@ export const AdminPage: React.FC = () => {
     setIsCreatingPlan(true);
 
     try {
-      const res = await fetch('/api/admin/create-global-plan', {
+      const res = await authFetch('/api/admin/create-global-plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -802,7 +833,7 @@ export const AdminPage: React.FC = () => {
     if (!newClusterName) return;
     setIsCreatingCluster(true);
     try {
-      const res = await fetch('/api/admin/create-cluster', {
+      const res = await authFetch('/api/admin/create-cluster', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newClusterName, description: newClusterDesc })
@@ -826,7 +857,7 @@ export const AdminPage: React.FC = () => {
     if (!newStoreName || !newStoreCity) return;
     setIsCreatingStore(true);
     try {
-      const res = await fetch('/api/admin/create-store', {
+      const res = await authFetch('/api/admin/create-store', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -906,6 +937,19 @@ export const AdminPage: React.FC = () => {
                 </span>
               </div>
             </div>
+
+            {/* Ação de Logout Corporativo */}
+            {onLogout && (
+              <button
+                type="button"
+                onClick={onLogout}
+                className="bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/25 px-3.5 py-2.5 rounded-2xl text-xs font-black flex items-center space-x-2 transition-all cursor-pointer shadow-lg hover:shadow-rose-500/10"
+                title="Encerrar sessão administrativa com segurança"
+              >
+                <LogOut className="w-3.5 h-3.5 text-rose-400" />
+                <span className="hidden sm:inline">Sair</span>
+              </button>
+            )}
           </div>
         </header>
 

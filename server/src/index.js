@@ -3,6 +3,7 @@ import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
 import multer from 'multer';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -42,7 +43,8 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
 // Servir uploads com suporte a Range requests (HTTP 206) a partir de ambos os diretórios
 app.use('/uploads', express.static(ROOT_UPLOAD_DIR));
@@ -181,6 +183,82 @@ app.get('/api/display/stream', (req, res) => {
     sseClients = sseClients.filter(c => c.id !== clientId);
     console.log(`[SSE] Celular desconectado: ${clientId}. Restantes: ${sseClients.length}`);
   });
+});
+
+// =========================================================================
+// MÓDULO DE AUTENTICAÇÃO E SEGURANÇA CORPORATIVA TIM
+// =========================================================================
+const ADMIN_USER = process.env.ADMIN_USERNAME || 'admin';
+const ADMIN_PASS = process.env.ADMIN_PASSWORD || 'tim@showroom2026';
+const AUTH_SECRET = process.env.AUTH_SECRET || 'tim-showroom-enterprise-auth-key-2026';
+
+function generateAuthToken(username) {
+  return crypto.createHmac('sha256', AUTH_SECRET).update(`${username}:${ADMIN_PASS}`).digest('hex');
+}
+
+function verifyAuthToken(token) {
+  if (!token) return false;
+  const expectedAdmin = generateAuthToken(ADMIN_USER);
+  const expectedGestor = generateAuthToken('gestor@tim.com.br');
+  return token === expectedAdmin || token === expectedGestor;
+}
+
+// 1. Endpoint Público de Login Administrativo
+app.post('/api/admin/login', (req, res) => {
+  const { username, password } = req.body || {};
+  const cleanUser = (username || '').trim().toLowerCase();
+  const cleanPass = (password || '').trim();
+
+  const isUserValid = cleanUser === ADMIN_USER.toLowerCase() || cleanUser === 'gestor@tim.com.br';
+  const isPassValid = cleanPass === ADMIN_PASS;
+
+  if (!isUserValid || !isPassValid) {
+    return res.status(401).json({
+      success: false,
+      error: 'Credenciais inválidas. Verifique seu usuário e senha institucional.'
+    });
+  }
+
+  const token = generateAuthToken(cleanUser);
+  return res.json({
+    success: true,
+    token,
+    user: {
+      username: cleanUser,
+      name: 'Gestor TIM',
+      role: 'admin'
+    }
+  });
+});
+
+// 2. Endpoint de Validação de Sessão Ativa
+app.get('/api/admin/verify-session', (req, res) => {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+
+  if (token && verifyAuthToken(token)) {
+    return res.json({ success: true, valid: true, user: { name: 'Gestor TIM', role: 'admin' } });
+  }
+  return res.status(401).json({ success: false, valid: false, error: 'Sessão expirada' });
+});
+
+// 3. Middleware de Bloqueio para todas as outras rotas /api/admin/*
+app.use('/api/admin', (req, res, next) => {
+  // Rotas públicas de login e verificação
+  if (req.path === '/login' || req.path === '/verify-session') {
+    return next();
+  }
+
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+
+  if (!token || !verifyAuthToken(token)) {
+    return res.status(401).json({
+      error: 'Acesso não autorizado. Efetue login para acessar o painel do Showroom TIM.'
+    });
+  }
+
+  next();
 });
 
 // Overview completo para o Admin

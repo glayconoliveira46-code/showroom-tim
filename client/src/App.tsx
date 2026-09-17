@@ -1,11 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { DisplayPage } from './pages/DisplayPage';
 import { AdminPage } from './pages/AdminPage';
+import { AdminLoginPage } from './pages/AdminLoginPage';
 
 export default function App() {
   const [currentRoute, setCurrentRoute] = useState<'display' | 'admin'>(() => {
     return window.location.pathname.includes('/admin') ? 'admin' : 'display';
   });
+
+  const [authToken, setAuthToken] = useState<string | null>(() => {
+    return localStorage.getItem('tim_admin_token') || sessionStorage.getItem('tim_admin_token');
+  });
+
+  const handleLoginSuccess = (token: string, user: any) => {
+    localStorage.setItem('tim_admin_token', token);
+    localStorage.setItem('tim_admin_user', JSON.stringify(user));
+    setAuthToken(token);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('tim_admin_token');
+    localStorage.removeItem('tim_admin_user');
+    sessionStorage.removeItem('tim_admin_token');
+    sessionStorage.removeItem('tim_admin_user');
+    setAuthToken(null);
+  };
 
   useEffect(() => {
     const handlePopState = () => {
@@ -25,14 +44,21 @@ export default function App() {
     }
   }, [currentRoute]);
 
+  const renderAdminView = () => {
+    if (!authToken) {
+      return <AdminLoginPage onLoginSuccess={handleLoginSuccess} />;
+    }
+    return <AdminPage onLogout={handleLogout} />;
+  };
+
   return (
     <div className={`w-full relative ${
       currentRoute === 'admin' 
         ? 'min-h-screen overflow-y-auto bg-[#070C18]' 
         : 'w-screen h-screen overflow-hidden bg-[#001438]'
     }`}>
-      {/* Apenas renderiza a tela limpa sem botões flutuantes sobrepostos */}
-      {currentRoute === 'admin' ? <AdminPage /> : <DisplayPage />}
+      {/* Roteamento Seguro: Admin protegido com autenticação ou Display autônomo */}
+      {currentRoute === 'admin' ? renderAdminView() : <DisplayPage />}
     </div>
   );
 }

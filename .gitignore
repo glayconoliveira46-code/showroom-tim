@@ -24,6 +24,7 @@ client/public/uploads/*.mp4
 .vscode/
 .idea/
 .DS_Store
+moto g/
 
 # Environment
 .env
