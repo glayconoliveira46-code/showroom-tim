@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TimLogo } from './TimLogo';
 import { Sparkles, Camera, Smartphone, BatteryCharging, ChevronRight, Check, ArrowLeft, ShieldCheck, Tag, CheckCircle2 } from 'lucide-react';
+import { CameraExperienceModal } from './CameraExperienceModal';
 
 export interface PlanOption {
   id: string;
@@ -53,6 +54,7 @@ export const InteractiveHub: React.FC<InteractiveHubProps> = ({
   const [selectedPlanId, setSelectedPlanId] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState(colors[0]?.name || '');
   const [selectedHighlight, setSelectedHighlight] = useState<string>(highlights[0]?.id || '');
+  const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
 
   // Sincroniza o plano selecionado sempre que a matriz de planos for atualizada via SSE
   useEffect(() => {
@@ -127,6 +129,35 @@ export const InteractiveHub: React.FC<InteractiveHubProps> = ({
           <span className="text-[10px] font-extrabold text-[#00B5E2] uppercase tracking-widest block mb-1">{brand}</span>
           <h1 className="text-2xl font-black tracking-tight leading-tight">{modelName}</h1>
           <p className="text-xs text-blue-100 mt-1">{tagline}</p>
+        </div>
+
+        {/* CARD DE EXPERIÊNCIA DE CÂMERA AO VIVO COM CONFORMIDADE PROCON */}
+        <div 
+          onClick={() => setIsCameraModalOpen(true)}
+          className="bg-gradient-to-r from-[#001438] via-[#002B7F] to-[#004B99] border border-[#00B5E2]/40 hover:border-[#00B5E2] p-4 rounded-3xl text-white shadow-lg flex items-center justify-between cursor-pointer transition-all active:scale-98 group"
+        >
+          <div className="flex items-center space-x-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-[#00B5E2] text-[#001438] flex items-center justify-center shadow-[0_0_20px_rgba(0,181,226,0.4)] group-hover:scale-105 transition-transform shrink-0">
+              <Camera className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-1.5">
+                <span className="text-[9px] font-black uppercase tracking-wider text-cyan-300 bg-cyan-950/60 border border-cyan-500/30 px-2 py-0.5 rounded-full">
+                  Teste ao Vivo
+                </span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+              </div>
+              <h3 className="text-sm font-black text-white leading-tight mt-0.5">
+                Experimentar Câmeras do Aparelho
+              </h3>
+              <p className="text-[10px] text-blue-100 mt-0.5">
+                Abra o visor e teste as lentes traseiras e frontal com preço visível
+              </p>
+            </div>
+          </div>
+          <div className="bg-white/10 group-hover:bg-white/20 p-2 rounded-xl text-cyan-300 group-hover:translate-x-1 transition-all shrink-0">
+            <ChevronRight className="w-5 h-5" />
+          </div>
         </div>
 
         {/* Seletor de Abas com "Planos & Ofertas" em Primeiro Lugar */}
@@ -344,6 +375,19 @@ export const InteractiveHub: React.FC<InteractiveHubProps> = ({
           </button>
         </div>
       </footer>
+
+      {/* MODAL DE DEGUSTAÇÃO DE CÂMERA AO VIVO COM CONFORMIDADE PROCON */}
+      <CameraExperienceModal
+        isOpen={isCameraModalOpen}
+        modelName={modelName}
+        brand={brand}
+        currentPlan={currentPlan}
+        onClose={() => setIsCameraModalOpen(false)}
+        onTimeoutReturnToAttract={() => {
+          setIsCameraModalOpen(false);
+          onBackToAttract();
+        }}
+      />
 
     </div>
   );
