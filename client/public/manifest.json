@@ -1,0 +1,19 @@
+{
+  "name": "TIM Showroom Hub",
+  "short_name": "Showroom TIM",
+  "description": "Vitrine Digital & Degustação Interativa para Lojas TIM",
+  "start_url": "/display",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#001438",
+  "theme_color": "#001438",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

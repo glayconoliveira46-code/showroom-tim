@@ -91,10 +91,44 @@ export const AttractMode: React.FC<AttractModeProps> = ({
     return () => clearTimeout(timer);
   }, [safeIndex, currentItem, activeItems.length]);
 
-  // Garante início imediato e retomada do vídeo no Safari iOS
+  const [isVideoPlaying, setIsVideoPlaying] = useState(true);
+
+  // Garante início imediato e desbloqueio do vídeo no iOS Standalone (Adicionar à Tela de Início)
   useEffect(() => {
-    if (currentItem?.type === 'video' && videoRef.current) {
-      videoRef.current.play().catch(() => {});
+    const v = videoRef.current;
+    if (currentItem?.type === 'video' && v) {
+      v.defaultMuted = true;
+      v.muted = true;
+      v.playsInline = true;
+      v.setAttribute('muted', '');
+      v.setAttribute('playsinline', '');
+      v.setAttribute('webkit-playsinline', 'true');
+
+      const tryPlay = () => {
+        const p = v.play();
+        if (p !== undefined) {
+          p.then(() => setIsVideoPlaying(true)).catch(() => {
+            setIsVideoPlaying(false);
+          });
+        }
+      };
+
+      tryPlay();
+
+      // No modo tela de início do iOS, o primeiro toque global desbloqueia o player
+      const handleGlobalUnlock = () => {
+        if (v.paused) {
+          tryPlay();
+        }
+      };
+
+      window.addEventListener('touchstart', handleGlobalUnlock, { passive: true, once: true });
+      window.addEventListener('click', handleGlobalUnlock, { passive: true, once: true });
+
+      return () => {
+        window.removeEventListener('touchstart', handleGlobalUnlock);
+        window.removeEventListener('click', handleGlobalUnlock);
+      };
     }
   }, [currentItem?.id, safeIndex]);
 
@@ -109,14 +143,27 @@ export const AttractMode: React.FC<AttractModeProps> = ({
     objectFit: isBlurFill ? 'contain' : (fitMode === 'contain' ? 'contain' : 'cover'),
     objectPosition: `${posX}% ${posY}%`,
     transform: scale !== 1 ? `scale(${scale})` : undefined,
-    transformOrigin: `${posX}% ${posY}%`
+    transformOrigin: `${posX}% ${posY}%`,
+    pointerEvents: 'none' // CRÍTICO: impede que toques no iOS pausem o player nativo
+  };
+
+  const handleScreenInteraction = () => {
+    // Se o vídeo estiver pausado pelo iOS no launch inicial, dá play primeiro
+    const v = videoRef.current;
+    if (v && v.paused && currentItem?.type === 'video') {
+      v.defaultMuted = true;
+      v.muted = true;
+      v.play().then(() => setIsVideoPlaying(true)).catch(() => {});
+      return;
+    }
+
+    onScreenTouch();
   };
 
   return (
     <div 
       className="relative w-full h-full bg-[#001233] text-white overflow-hidden cursor-pointer select-none font-sans flex flex-col justify-between"
-      onClick={onScreenTouch}
-      onTouchStart={onScreenTouch}
+      onClick={handleScreenInteraction}
     >
       {/* 1. MÍDIA ATIVA (VÍDEO OU IMAGEM) COM TRANSIÇÃO SUAVE & ENQUADRAMENTO */}
       <div className="absolute inset-0 z-0 overflow-hidden bg-black">
@@ -165,12 +212,16 @@ export const AttractMode: React.FC<AttractModeProps> = ({
               setMediaLoaded(true);
               videoRef.current?.play().catch(() => {});
             }}
-            onPlay={() => setMediaLoaded(true)}
+            onPlay={() => {
+              setMediaLoaded(true);
+              setIsVideoPlaying(true);
+            }}
             onPause={(e) => {
+              setIsVideoPlaying(false);
               // Se o Safari pausar o vídeo em segundo plano, retoma suavemente
               const v = e.currentTarget;
               if (v && v.paused && !document.hidden) {
-                v.play().catch(() => {});
+                v.play().then(() => setIsVideoPlaying(true)).catch(() => {});
               }
             }}
             onStalled={(e) => {
@@ -250,8 +301,17 @@ export const AttractMode: React.FC<AttractModeProps> = ({
         )}
       </header>
 
-      {/* 3. ESPAÇO CENTRAL LIVRE PARA O VÍDEO / PÔSTER */}
-      <div className="relative z-10 flex-1 pointer-events-none" />
+      {/* 3. ESPAÇO CENTRAL LIVRE PARA O VÍDEO / PÔSTER COM INDICADOR SE ESTIVER PAUSADO PELO IOS */}
+      <div className="relative z-10 flex-1 flex items-center justify-center pointer-events-none">
+        {!isVideoPlaying && currentItem?.type === 'video' && (
+          <div className="bg-[#001438]/85 backdrop-blur-md px-5 py-3 rounded-2xl border border-[#00B5E2]/40 flex items-center space-x-2.5 animate-pulse shadow-2xl pointer-events-auto cursor-pointer">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#00B5E2] animate-ping" />
+            <span className="text-xs font-black text-white uppercase tracking-wider">
+              Toque na tela para iniciar a vitrine
+            </span>
+          </div>
+        )}
+      </div>
 
       {/* 4. RODAPÉ DE ALTO IMPACTO (OFERTA + BOTÃO ENCARTE COM PIXEL SHIFT E SAFE AREA) */}
       <footer 
@@ -296,7 +356,13 @@ export const AttractMode: React.FC<AttractModeProps> = ({
         </div>
 
         {/* Botão Chamativo de Toque com Efeito Encarte */}
-        <div className="w-full bg-[#00B5E2] hover:bg-[#00c8f8] text-[#001438] py-3.5 px-6 rounded-2xl shadow-[0_0_25px_rgba(0,181,226,0.4)] flex items-center justify-center space-x-2 transition-all">
+        <div 
+          onClick={(e) => {
+            e.stopPropagation();
+            onScreenTouch();
+          }}
+          className="w-full bg-[#00B5E2] hover:bg-[#00c8f8] active:scale-98 text-[#001438] py-3.5 px-6 rounded-2xl shadow-[0_0_25px_rgba(0,181,226,0.4)] flex items-center justify-center space-x-2 transition-all cursor-pointer pointer-events-auto"
+        >
           <Sparkles className="w-4 h-4 text-[#001438] fill-[#001438]" />
           <span className="text-xs font-black uppercase tracking-wider">
             Toque para experimentar
