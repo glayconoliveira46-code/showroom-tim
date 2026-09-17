@@ -59,7 +59,8 @@ export const AttractMode: React.FC<AttractModeProps> = ({
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mediaLoaded, setMediaLoaded] = useState(false);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(true);
+  const videoRefs = useRef<{ [id: string]: HTMLVideoElement | null }>({});
 
   // Motor Anti-Burn-in (Pixel Shift contínuo para displays AMOLED/OLED/LCD)
   const { shiftStyle } = usePixelShift({ intervalMs: 60000, maxOffsetPx: 3 });
@@ -82,7 +83,6 @@ export const AttractMode: React.FC<AttractModeProps> = ({
       return;
     }
 
-    // Duração configurada da foto em segundos (padrão 1 hora se não especificado)
     const duration = (currentItem.duration_sec || 7) * 1000;
     const timer = setTimeout(() => {
       advanceNext();
@@ -91,70 +91,152 @@ export const AttractMode: React.FC<AttractModeProps> = ({
     return () => clearTimeout(timer);
   }, [safeIndex, currentItem, activeItems.length]);
 
-  const [isVideoPlaying, setIsVideoPlaying] = useState(true);
-
-  // Garante início imediato e desbloqueio do vídeo no iOS Standalone (Adicionar à Tela de Início)
+  // Controle de ativação e reprodução sem destruir o decoder de hardware do Android
   useEffect(() => {
-    const v = videoRef.current;
-    if (currentItem?.type === 'video' && v) {
-      v.defaultMuted = true;
-      v.muted = true;
-      v.playsInline = true;
-      v.setAttribute('muted', '');
-      v.setAttribute('playsinline', '');
-      v.setAttribute('webkit-playsinline', 'true');
+    activeItems.forEach((item, idx) => {
+      if (item.type === 'video') {
+        const v = videoRefs.current[item.id];
+        if (v) {
+          v.defaultMuted = true;
+          v.muted = true;
+          v.playsInline = true;
+          v.setAttribute('muted', '');
+          v.setAttribute('playsinline', '');
+          v.setAttribute('webkit-playsinline', 'true');
 
-      const tryPlay = () => {
-        const p = v.play();
-        if (p !== undefined) {
-          p.then(() => setIsVideoPlaying(true)).catch(() => {
-            setIsVideoPlaying(false);
-          });
+          if (idx === safeIndex) {
+            // Reinicia o cursor e dá play no item ativo
+            if (v.duration > 0 && v.currentTime >= v.duration - 0.2) {
+              v.currentTime = 0;
+            }
+            const p = v.play();
+            if (p !== undefined) {
+              p.then(() => setIsVideoPlaying(true)).catch(() => {
+                setIsVideoPlaying(false);
+              });
+            }
+          } else {
+            // Pausa vídeos em background para economizar GPU/Decoder
+            v.pause();
+          }
         }
-      };
+      }
+    });
+  }, [safeIndex, activeItems]);
 
-      tryPlay();
-
-      // No modo tela de início do iOS, o primeiro toque global desbloqueia o player
-      const handleGlobalUnlock = () => {
-        if (v.paused) {
-          tryPlay();
+  // Desbloqueio global no primeiro toque (requisito de PWA/Standalone no iOS e Chrome Android)
+  useEffect(() => {
+    const handleGlobalUnlock = () => {
+      const active = activeItems[safeIndex];
+      if (active?.type === 'video') {
+        const v = videoRefs.current[active.id];
+        if (v && v.paused) {
+          v.defaultMuted = true;
+          v.muted = true;
+          v.play().then(() => setIsVideoPlaying(true)).catch(() => {});
         }
-      };
+      }
+    };
 
-      window.addEventListener('touchstart', handleGlobalUnlock, { passive: true, once: true });
-      window.addEventListener('click', handleGlobalUnlock, { passive: true, once: true });
+    window.addEventListener('touchstart', handleGlobalUnlock, { passive: true, once: true });
+    window.addEventListener('click', handleGlobalUnlock, { passive: true, once: true });
 
-      return () => {
-        window.removeEventListener('touchstart', handleGlobalUnlock);
-        window.removeEventListener('click', handleGlobalUnlock);
-      };
-    }
-  }, [currentItem?.id, safeIndex]);
+    return () => {
+      window.removeEventListener('touchstart', handleGlobalUnlock);
+      window.removeEventListener('click', handleGlobalUnlock);
+    };
+  }, [safeIndex, activeItems]);
 
-  // Configurações de Enquadramento e Dimensionamento Visual da Mídia
-  const posX = currentItem?.position_x ?? 50;
-  const posY = currentItem?.position_y ?? 50;
-  const scale = currentItem?.scale ?? 1;
-  const fitMode = currentItem?.object_fit || 'cover';
-  const isBlurFill = fitMode === 'blur_fill';
+  // Watchdog Ativo Anti-Congelamento (Recupera automaticamente se o Android/iOS travar o vídeo)
+  const lastTimeRef = useRef<number>(-1);
+  const stallCountRef = useRef<number>(0);
 
-  const mediaStyle: React.CSSProperties = {
-    objectFit: isBlurFill ? 'contain' : (fitMode === 'contain' ? 'contain' : 'cover'),
-    objectPosition: `${posX}% ${posY}%`,
-    transform: scale !== 1 ? `scale(${scale})` : undefined,
-    transformOrigin: `${posX}% ${posY}%`,
-    pointerEvents: 'none' // CRÍTICO: impede que toques no iOS pausem o player nativo
+  useEffect(() => {
+    const active = activeItems[safeIndex];
+    if (active?.type !== 'video') return;
+
+    const v = videoRefs.current[active.id];
+    if (!v) return;
+
+    const watchdogTimer = setInterval(() => {
+      if (document.hidden) return;
+
+      const isAtEnd = v.duration > 0 && v.currentTime >= v.duration - 0.2;
+
+      // 1. Se estiver pausado ou no fim, reinicia o cursor e retoma a reprodução
+      if (v.paused || isAtEnd || v.ended) {
+        if (isAtEnd || v.ended) {
+          if (activeItems.length > 1) {
+            advanceNext();
+            return;
+          } else {
+            v.currentTime = 0;
+          }
+        }
+        v.defaultMuted = true;
+        v.muted = true;
+        v.play()
+          .then(() => setIsVideoPlaying(true))
+          .catch(() => {});
+        return;
+      }
+
+      // 2. Detecção de estagnação de cursor (congelamento de hardware)
+      if (Math.abs(v.currentTime - lastTimeRef.current) < 0.05) {
+        stallCountRef.current += 1;
+        // Se ficar parado por 2 verificações (2 segundos)
+        if (stallCountRef.current >= 2) {
+          console.warn('[VideoWatchdog] Estagnação detectada no player. Forçando retomada...');
+          stallCountRef.current = 0;
+          if (isAtEnd) {
+            v.currentTime = 0;
+          }
+          v.play()
+            .then(() => setIsVideoPlaying(true))
+            .catch(() => {
+              v.currentTime = 0;
+              v.play().catch(() => {});
+            });
+        }
+      } else {
+        stallCountRef.current = 0;
+        lastTimeRef.current = v.currentTime;
+        if (!isVideoPlaying) {
+          setIsVideoPlaying(true);
+        }
+      }
+    }, 1000);
+
+    return () => clearInterval(watchdogTimer);
+  }, [safeIndex, activeItems, isVideoPlaying]);
+
+  // Função auxiliar para calcular enquadramento de cada mídia
+  const getMediaStyle = (item: MediaPlaylistItem): React.CSSProperties => {
+    const posX = item?.position_x ?? 50;
+    const posY = item?.position_y ?? 50;
+    const scale = item?.scale ?? 1;
+    const fitMode = item?.object_fit || 'cover';
+    const isBlur = fitMode === 'blur_fill';
+
+    return {
+      objectFit: isBlur ? 'contain' : (fitMode === 'contain' ? 'contain' : 'cover'),
+      objectPosition: `${posX}% ${posY}%`,
+      transform: scale !== 1 ? `scale(${scale})` : undefined,
+      transformOrigin: `${posX}% ${posY}%`,
+      pointerEvents: 'none'
+    };
   };
 
   const handleScreenInteraction = () => {
-    // Se o vídeo estiver pausado pelo iOS no launch inicial, dá play primeiro
-    const v = videoRef.current;
-    if (v && v.paused && currentItem?.type === 'video') {
-      v.defaultMuted = true;
-      v.muted = true;
-      v.play().then(() => setIsVideoPlaying(true)).catch(() => {});
-      return;
+    const active = activeItems[safeIndex];
+    if (active?.type === 'video') {
+      const v = videoRefs.current[active.id];
+      if (v && v.paused) {
+        v.defaultMuted = true;
+        v.muted = true;
+        v.play().then(() => setIsVideoPlaying(true)).catch(() => {});
+        return;
+      }
     }
 
     onScreenTouch();
@@ -165,122 +247,153 @@ export const AttractMode: React.FC<AttractModeProps> = ({
       className="relative w-full h-full bg-[#001233] text-white overflow-hidden cursor-pointer select-none font-sans flex flex-col justify-between"
       onClick={handleScreenInteraction}
     >
-      {/* 1. MÍDIA ATIVA (VÍDEO OU IMAGEM) COM TRANSIÇÃO SUAVE & ENQUADRAMENTO */}
-      <div className="absolute inset-0 z-0 overflow-hidden bg-black">
-        {/* Fundo com Efeito Ambiental Borrado (Para vídeos horizontais na tela vertical) */}
-        {isBlurFill && currentItem && (
-          <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-            {currentItem.type === 'video' ? (
-              <video
-                key={`blur-${currentItem.id}-${currentItem.url}`}
-                src={currentItem.url}
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-full h-full object-cover filter blur-2xl scale-125 opacity-60"
-              />
-            ) : (
-              <img
-                key={`blur-img-${currentItem.id}-${currentItem.url}`}
-                src={currentItem.url}
-                alt=""
-                className="w-full h-full object-cover filter blur-2xl scale-125 opacity-60"
-              />
-            )}
-          </div>
-        )}
+      {/* 1. MÍDIAS ATIVAS (VÍDEO E IMAGENS) COM CAMADAS PERSISTENTES EM GPU & TRANSIÇÃO SUAVE */}
+      <div 
+        className="absolute inset-0 z-0 overflow-hidden bg-black transform-gpu"
+        style={{ transform: 'translateZ(0)' }}
+      >
+        {activeItems.map((item, idx) => {
+          const isActive = idx === safeIndex;
+          const mediaStyle = getMediaStyle(item);
+          const isBlurFill = (item.object_fit || 'cover') === 'blur_fill';
 
-        {currentItem?.type === 'video' ? (
-          <video
-            ref={videoRef}
-            key={`vid-${currentItem.id}-${currentItem.url}`}
-            src={currentItem.url}
-            autoPlay
-            loop={activeItems.length === 1}
-            muted
-            playsInline
-            // @ts-ignore
-            webkit-playsinline="true"
-            preload="auto"
-            style={mediaStyle}
-            onCanPlay={() => {
-              setMediaLoaded(true);
-              videoRef.current?.play().catch(() => {});
-            }}
-            onLoadedData={() => {
-              setMediaLoaded(true);
-              videoRef.current?.play().catch(() => {});
-            }}
-            onPlay={() => {
-              setMediaLoaded(true);
-              setIsVideoPlaying(true);
-            }}
-            onPause={(e) => {
-              setIsVideoPlaying(false);
-              // Se o Safari pausar o vídeo em segundo plano, retoma suavemente
-              const v = e.currentTarget;
-              if (v && v.paused && !document.hidden) {
-                v.play().then(() => setIsVideoPlaying(true)).catch(() => {});
-              }
-            }}
-            onStalled={(e) => {
-              e.currentTarget.play().catch(() => {});
-            }}
-            onError={(e) => {
-              console.warn('Erro ao reproduzir vídeo na bancada:', e);
-              setMediaLoaded(true);
-              if (activeItems.length > 1) {
-                setTimeout(() => advanceNext(), 3000);
-              }
-            }}
-            onEnded={(e) => {
-              if (activeItems.length > 1) {
-                advanceNext();
-              } else {
-                // Loop resiliente para evitar travamento no último frame no iOS Safari
-                const v = e.currentTarget;
-                v.currentTime = 0;
-                v.play().catch(() => {});
-              }
-            }}
-            onTimeUpdate={(e) => {
-              const v = e.currentTarget;
-              // Se tiver mais de 1 item, troca antes do fim
-              if (activeItems.length > 1 && v.duration > 0 && v.currentTime >= v.duration - 0.15) {
-                advanceNext();
-              }
-            }}
-            className={`w-full h-full relative z-10 transition-opacity duration-700 ${
-              mediaLoaded ? 'opacity-90' : 'opacity-30'
-            }`}
-          />
-        ) : (
-          <div className="w-full h-full relative z-10 overflow-hidden flex items-center justify-center">
-            <img
-              key={`img-${currentItem.id}-${currentItem.url}`}
-              src={currentItem.url}
-              alt={currentItem.title}
-              style={mediaStyle}
-              onLoad={() => setMediaLoaded(true)}
-              onError={(e) => {
-                console.warn('Erro ao carregar imagem na vitrine:', currentItem.url);
-                setMediaLoaded(true);
-                if (activeItems.length > 1) {
-                  advanceNext();
-                } else {
-                  (e.currentTarget as HTMLImageElement).src = '/posters/tim-5g-standalone.svg';
-                }
-              }}
-              className={`w-full h-full transition-all duration-1000 transform ${
-                mediaLoaded ? 'opacity-95' : 'opacity-0'
+          return (
+            <div
+              key={item.id}
+              className={`absolute inset-0 transition-opacity duration-700 ${
+                isActive ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
               }`}
-            />
-          </div>
-        )}
+            >
+              {/* Efeito Ambiental Borrado Otimizado para GPU */}
+              {isBlurFill && (
+                <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                  {item.type === 'video' ? (
+                    <video
+                      src={item.url}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="w-full h-full object-cover filter blur-lg scale-110 opacity-50"
+                    />
+                  ) : (
+                    <img
+                      src={item.url}
+                      alt=""
+                      className="w-full h-full object-cover filter blur-lg scale-110 opacity-50"
+                    />
+                  )}
+                </div>
+              )}
+
+              {item.type === 'video' ? (
+                <video
+                  ref={(el) => {
+                    videoRefs.current[item.id] = el;
+                  }}
+                  src={item.url}
+                  autoPlay
+                  loop={activeItems.length === 1}
+                  muted
+                  playsInline
+                  // @ts-ignore
+                  webkit-playsinline="true"
+                  preload="auto"
+                  style={mediaStyle}
+                  onCanPlay={(e) => {
+                    setMediaLoaded(true);
+                    if (isActive) {
+                      e.currentTarget.play().catch(() => {});
+                    }
+                  }}
+                  onLoadedData={(e) => {
+                    setMediaLoaded(true);
+                    if (isActive) {
+                      e.currentTarget.play().catch(() => {});
+                    }
+                  }}
+                  onPlay={() => {
+                    setMediaLoaded(true);
+                    if (isActive) {
+                      setIsVideoPlaying(true);
+                    }
+                  }}
+                  onPause={(e) => {
+                    if (!isActive) return;
+                    const v = e.currentTarget;
+                    if (!v || document.hidden) return;
+
+                    // Se pausou na fronteira do fim
+                    if (v.duration > 0 && v.currentTime >= v.duration - 0.2) {
+                      if (activeItems.length > 1) {
+                        advanceNext();
+                      } else {
+                        v.currentTime = 0;
+                        v.play().then(() => setIsVideoPlaying(true)).catch(() => {});
+                      }
+                    } else {
+                      setIsVideoPlaying(false);
+                      // Retomada resiliente
+                      v.play().then(() => setIsVideoPlaying(true)).catch(() => {});
+                    }
+                  }}
+                  onStalled={(e) => {
+                    if (isActive) {
+                      e.currentTarget.play().catch(() => {});
+                    }
+                  }}
+                  onError={(e) => {
+                    console.warn('Erro ao reproduzir vídeo na bancada:', e);
+                    setMediaLoaded(true);
+                    if (activeItems.length > 1) {
+                      setTimeout(() => advanceNext(), 2000);
+                    }
+                  }}
+                  onEnded={(e) => {
+                    const v = e.currentTarget;
+                    if (activeItems.length > 1) {
+                      advanceNext();
+                    } else {
+                      v.currentTime = 0;
+                      v.play().catch(() => {});
+                    }
+                  }}
+                  onTimeUpdate={(e) => {
+                    if (!isActive) return;
+                    const v = e.currentTarget;
+                    // Se tiver mais de 1 item, avança antes do fim para crossfade imperceptível
+                    if (activeItems.length > 1 && v.duration > 0 && v.currentTime >= v.duration - 0.2) {
+                      advanceNext();
+                    }
+                  }}
+                  className="w-full h-full relative z-10"
+                />
+              ) : (
+                <div className="w-full h-full relative z-10 overflow-hidden flex items-center justify-center">
+                  <img
+                    src={item.url}
+                    alt={item.title}
+                    style={mediaStyle}
+                    onLoad={() => setMediaLoaded(true)}
+                    onError={(e) => {
+                      console.warn('Erro ao carregar imagem na vitrine:', item.url);
+                      setMediaLoaded(true);
+                      if (activeItems.length > 1) {
+                        advanceNext();
+                      } else {
+                        (e.currentTarget as HTMLImageElement).src = '/posters/tim-5g-standalone.svg';
+                      }
+                    }}
+                    className="w-full h-full"
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
         
         {/* Degradê nos Extremos para Garantir Alto Contraste e Leitura dos Textos */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#00102E] via-transparent to-[#001438]/85 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#00102E] via-transparent to-[#001438]/85 pointer-events-none z-10" />
       </div>
 
       {/* 2. HEADER ULTRA-MINIMALISTA COM MOTOR ANTI-BURN-IN (PIXEL SHIFT) E SAFE AREA */}
@@ -335,8 +448,8 @@ export const AttractMode: React.FC<AttractModeProps> = ({
           </p>
         </div>
 
-        {/* Card de Preço em Glassmorphism */}
-        <div className="bg-black/55 backdrop-blur-xl rounded-2xl p-3.5 border border-white/20 mb-3 flex items-center justify-between shadow-2xl">
+        {/* Card de Preço em Glassmorphism Otimizado para GPU */}
+        <div className="bg-black/75 backdrop-blur-md rounded-2xl p-3.5 border border-white/20 mb-3 flex items-center justify-between shadow-2xl">
           <div>
             <span className="text-[9px] uppercase font-bold tracking-wider text-blue-200 block">
               {planBadge || 'Oferta em Destaque'}
