@@ -91,6 +91,13 @@ export const AttractMode: React.FC<AttractModeProps> = ({
     return () => clearTimeout(timer);
   }, [safeIndex, currentItem, activeItems.length]);
 
+  // Garante início imediato e retomada do vídeo no Safari iOS
+  useEffect(() => {
+    if (currentItem?.type === 'video' && videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
+  }, [currentItem?.id, safeIndex]);
+
   // Configurações de Enquadramento e Dimensionamento Visual da Mídia
   const posX = currentItem?.position_x ?? 50;
   const posY = currentItem?.position_y ?? 50;
@@ -146,11 +153,29 @@ export const AttractMode: React.FC<AttractModeProps> = ({
             loop={activeItems.length === 1}
             muted
             playsInline
+            // @ts-ignore
+            webkit-playsinline="true"
             preload="auto"
             style={mediaStyle}
-            onCanPlay={() => setMediaLoaded(true)}
-            onLoadedData={() => setMediaLoaded(true)}
+            onCanPlay={() => {
+              setMediaLoaded(true);
+              videoRef.current?.play().catch(() => {});
+            }}
+            onLoadedData={() => {
+              setMediaLoaded(true);
+              videoRef.current?.play().catch(() => {});
+            }}
             onPlay={() => setMediaLoaded(true)}
+            onPause={(e) => {
+              // Se o Safari pausar o vídeo em segundo plano, retoma suavemente
+              const v = e.currentTarget;
+              if (v && v.paused && !document.hidden) {
+                v.play().catch(() => {});
+              }
+            }}
+            onStalled={(e) => {
+              e.currentTarget.play().catch(() => {});
+            }}
             onError={(e) => {
               console.warn('Erro ao reproduzir vídeo na bancada:', e);
               setMediaLoaded(true);
@@ -158,15 +183,19 @@ export const AttractMode: React.FC<AttractModeProps> = ({
                 setTimeout(() => advanceNext(), 3000);
               }
             }}
-            onEnded={() => {
-              // Respeita estritamente a duração real integral do vídeo antes de trocar
+            onEnded={(e) => {
               if (activeItems.length > 1) {
                 advanceNext();
+              } else {
+                // Loop resiliente para evitar travamento no último frame no iOS Safari
+                const v = e.currentTarget;
+                v.currentTime = 0;
+                v.play().catch(() => {});
               }
             }}
             onTimeUpdate={(e) => {
-              // Fallback de segurança caso o navegador trave o evento onEnded no último frame
               const v = e.currentTarget;
+              // Se tiver mais de 1 item, troca antes do fim
               if (activeItems.length > 1 && v.duration > 0 && v.currentTime >= v.duration - 0.15) {
                 advanceNext();
               }

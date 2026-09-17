@@ -3,96 +3,41 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 export interface KeepAwakeStatus {
   isSupported: boolean;
   isActive: boolean;
-  method: 'wake-lock' | 'video-loop' | 'both' | 'none';
+  method: 'wake-lock' | 'none';
   requestLock: () => Promise<void>;
 }
 
 export function useKeepAwake(): KeepAwakeStatus {
   const [isActive, setIsActive] = useState(false);
-  const [method, setMethod] = useState<'wake-lock' | 'video-loop' | 'both' | 'none'>('none');
+  const [method, setMethod] = useState<'wake-lock' | 'none'>('none');
   const wakeLockRef = useRef<any>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  // 1. Elemento de vídeo oculto contínuo (NoSleep pattern para iOS Safari)
-  useEffect(() => {
-    let video = videoRef.current;
-    if (!video && typeof document !== 'undefined') {
-      video = document.createElement('video');
-      video.setAttribute('title', 'TIM Showroom Keep Awake');
-      video.setAttribute('playsinline', 'true');
-      video.setAttribute('webkit-playsinline', 'true');
-      video.setAttribute('muted', 'true');
-      video.setAttribute('loop', 'true');
-      video.muted = true;
-      video.loop = true;
-      video.preload = 'auto';
-      video.src = '/s24-video.mp4';
-      video.style.position = 'fixed';
-      video.style.top = '0';
-      video.style.left = '0';
-      video.style.width = '1px';
-      video.style.height = '1px';
-      video.style.opacity = '0.001';
-      video.style.pointerEvents = 'none';
-      video.style.zIndex = '-9999';
-      document.body.appendChild(video);
-      videoRef.current = video;
-    }
-
-    return () => {
-      if (videoRef.current && videoRef.current.parentNode) {
-        videoRef.current.parentNode.removeChild(videoRef.current);
-        videoRef.current = null;
-      }
-    };
-  }, []);
-
-  // 2. Requisitar bloqueio de tela via Wake Lock API + reprodução do vídeo
+  // Requisitar bloqueio de tela via Screen Wake Lock API oficial (iOS 16.4+, Android Chrome, Edge)
   const requestLock = useCallback(async () => {
-    let videoPlaying = false;
-    let wakeLockAcquired = false;
-
-    // A. Aciona o vídeo de fundo contínuo (blindagem para Safari iOS)
-    if (videoRef.current) {
-      try {
-        if (videoRef.current.paused) {
-          await videoRef.current.play();
-        }
-        videoPlaying = true;
-      } catch (err) {
-        // Política de autoplay pode aguardar primeiro gesto de toque
-      }
+    if (typeof navigator === 'undefined' || !('wakeLock' in navigator)) {
+      return;
     }
 
-    // B. Requisita a Screen Wake Lock API oficial (iOS 16.4+, Android Chrome, Edge)
-    if (typeof navigator !== 'undefined' && 'wakeLock' in navigator) {
-      try {
-        if (!wakeLockRef.current) {
-          const lock = await (navigator as any).wakeLock.request('screen');
-          wakeLockRef.current = lock;
-          wakeLockAcquired = true;
+    try {
+      if (!wakeLockRef.current) {
+        const lock = await (navigator as any).wakeLock.request('screen');
+        wakeLockRef.current = lock;
+        setIsActive(true);
+        setMethod('wake-lock');
+        console.log('[WakeLock] Tela travada com sucesso via Screen Wake Lock API');
 
-          lock.addEventListener('release', () => {
-            wakeLockRef.current = null;
-            setIsActive(false);
-          });
-        } else {
-          wakeLockAcquired = true;
-        }
-      } catch (err: any) {
-        console.warn('Wake Lock aguardando gesto de toque no iOS:', err?.message || err);
+        lock.addEventListener('release', () => {
+          console.log('[WakeLock] Trava de tela liberada pelo sistema');
+          wakeLockRef.current = null;
+          setIsActive(false);
+        });
+      } else {
+        setIsActive(true);
+        setMethod('wake-lock');
       }
-    }
-
-    if (wakeLockAcquired && videoPlaying) {
-      setIsActive(true);
-      setMethod('both');
-    } else if (wakeLockAcquired) {
-      setIsActive(true);
-      setMethod('wake-lock');
-    } else if (videoPlaying) {
-      setIsActive(true);
-      setMethod('video-loop');
+    } catch (err: any) {
+      // No iOS Safari, a primeira chamada no load pode falhar até o usuário tocar na tela
+      console.warn('[WakeLock] Aguardando interação de toque no iOS:', err?.message || err);
     }
   }, []);
 
@@ -119,14 +64,14 @@ export function useKeepAwake(): KeepAwakeStatus {
     document.addEventListener('visibilitychange', handleVisibility);
     document.addEventListener('fullscreenchange', handleVisibility);
 
-    // Watchdog: reavalia a cada 20 segundos se a tela continua travada
+    // Watchdog: reavalia a cada 15 segundos se a tela continua travada
     const watchdog = setInterval(() => {
       if (document.visibilityState === 'visible') {
-        if (!wakeLockRef.current || (videoRef.current && videoRef.current.paused)) {
+        if (!wakeLockRef.current) {
           requestLock();
         }
       }
-    }, 20000);
+    }, 15000);
 
     return () => {
       window.removeEventListener('touchstart', handleInteraction);
