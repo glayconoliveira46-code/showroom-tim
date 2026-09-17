@@ -92,6 +92,25 @@ export async function detectHardwareDevice(): Promise<DeviceDetectionResult> {
     };
   }
 
+  // Samsung Galaxy Tab A9+ 5G (SM-X216B / SM-X210 / SM-X216)
+  if (
+    normalizedModel.includes('sm-x216') ||
+    normalizedModel.includes('sm-x210') ||
+    normalizedModel.includes('sm-x218') ||
+    normalizedModel.includes('tab a9+') ||
+    normalizedModel.includes('tab a9 plus') ||
+    normalizedUa.includes('sm-x216') ||
+    normalizedUa.includes('sm-x210')
+  ) {
+    return {
+      matchedDeviceId: 'samsung-galaxy-tab-a9-plus',
+      detectedModelName: 'Galaxy Tab A9+ 5G',
+      detectedBrand: 'Samsung',
+      confidence: 'high',
+      rawIdentifier: rawModel || 'Samsung Galaxy Tab A9+ 5G (SM-X216B)'
+    };
+  }
+
   // 3. CORRELAÇÃO DE MODELOS APPLE (iOS Safari / WebKit)
   const isIOS = /iPad|iPhone|iPod/.test(ua) || (typeof navigator !== 'undefined' && navigator.platform === 'iPhone');
 

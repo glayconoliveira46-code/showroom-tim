@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#001438"/>
+      <stop offset="50%" stop-color="#002B7F"/>
+      <stop offset="100%" stop-color="#000D26"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="45%" r="50%">
+      <stop offset="0%" stop-color="#00B5E2" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#001438" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cardGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.15)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.03)"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fundo com degradê oficial TIM -->
+  <rect width="1080" height="1920" fill="url(#bg)"/>
+  <circle cx="540" cy="850" r="600" fill="url(#glow)"/>
+
+  <!-- Elementos Gráficos Futuristas Galaxy AI -->
+  <circle cx="540" cy="850" r="420" stroke="#00B5E2" stroke-width="2" stroke-dasharray="8,8" fill="none" opacity="0.4"/>
+  <circle cx="540" cy="850" r="500" stroke="#FFFFFF" stroke-width="1.5" stroke-dasharray="15,15" fill="none" opacity="0.2"/>
+
+  <!-- Header TIM -->
+  <g transform="translate(120, 140)">
+    <rect width="320" height="50" rx="25" fill="#002B7F" stroke="rgba(255,255,255,0.2)"/>
+    <text x="160" y="32" fill="#00B5E2" font-family="system-ui, sans-serif" font-size="20" font-weight="900" text-anchor="middle" letter-spacing="4">OFERTA EXCLUSIVA TIM</text>
+  </g>
+
+  <!-- Tagline Principal -->
+  <text x="540" y="380" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="64" font-weight="900" text-anchor="middle" letter-spacing="-1">
+    SAMSUNG GALAXY TAB A9+ 5G
+  </text>
+  <text x="540" y="440" fill="#00B5E2" font-family="system-ui, sans-serif" font-size="32" font-weight="700" text-anchor="middle" letter-spacing="3">
+    TELA 11 90Hz & SOM DOLBY ATMOS
+  </text>
+
+  <!-- Representação Artística do Aparelho em Titânio -->
+  <g transform="translate(340, 520)">
+    <!-- Corpo do Aparelho -->
+    <rect x="0" y="0" width="400" height="740" rx="36" fill="#1C1E24" stroke="#4A4E59" stroke-width="8"/>
+    <!-- Tela Interna -->
+    <rect x="12" y="12" width="376" height="716" rx="28" fill="#090D16"/>
+    
+    <!-- Papel de parede na tela do mockup -->
+    <circle cx="200" cy="300" r="140" fill="#00B5E2" opacity="0.25"/>
+    <polygon points="200,210 230,280 300,290 245,340 260,410 200,370 140,410 155,340 100,290 170,280" fill="#FFFFFF" opacity="0.9"/>
+    
+    <!-- Câmeras Traseiras Silhueta -->
+    <circle cx="65" cy="80" r="28" fill="#111" stroke="#333" stroke-width="4"/>
+    <circle cx="65" cy="80" r="14" fill="#00B5E2" opacity="0.6"/>
+    
+    <text x="200" y="520" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="26" font-weight="800" text-anchor="middle">SNAPDRAGON 5G</text>
+    <text x="200" y="555" fill="#99AACC" font-family="system-ui, sans-serif" font-size="18" text-anchor="middle">BATERIA 7.040 mAh</text>
+  </g>
+
+  <!-- Card de Benefícios -->
+  <g transform="translate(100, 1340)">
+    <rect width="880" height="260" rx="30" fill="url(#cardGrad)" stroke="rgba(255,255,255,0.2)"/>
+    
+    <!-- Item 1 -->
+    <circle cx="80" cy="80" r="30" fill="#00B5E2" opacity="0.2"/>
+    <text x="80" y="88" fill="#00B5E2" font-family="system-ui, sans-serif" font-size="28" font-weight="900" text-anchor="middle">✨</text>
+    <text x="135" y="75" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="26" font-weight="800">Tradução Simultânea em Chamadas</text>
+    <text x="135" y="105" fill="#B0C4DE" font-family="system-ui, sans-serif" font-size="18">Inteligência Artificial em tempo real direto no seu TIM</text>
+
+    <!-- Linha divisória -->
+    <line x1="50" y1="135" x2="830" y2="135" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+
+    <!-- Item 2 -->
+    <circle cx="80" cy="190" r="30" fill="#00B5E2" opacity="0.2"/>
+    <text x="80" y="198" fill="#00B5E2" font-family="system-ui, sans-serif" font-size="28" font-weight="900" text-anchor="middle">🔍</text>
+    <text x="135" y="185" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="26" font-weight="800">Circule para Pesquisar com o Google</text>
+    <text x="135" y="215" fill="#B0C4DE" font-family="system-ui, sans-serif" font-size="18">Encontre qualquer item na tela instantaneamente</text>
+  </g>
+
+  <!-- Rodapé Promocional TIM Black -->
+  <g transform="translate(100, 1640)">
+    <rect width="880" height="180" rx="30" fill="#FFCC00"/>
+    <text x="60" y="75" fill="#001438" font-family="system-ui, sans-serif" font-size="28" font-weight="900">TIM BLACK FAMÍLIA</text>
+    <text x="60" y="125" fill="#001438" font-family="system-ui, sans-serif" font-size="44" font-weight="900">R$ 2.500 DE SUBSÍDIO NA CONTRATAÇÃO</text>
+  </g>
+</svg>

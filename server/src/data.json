@@ -604,6 +604,144 @@
           "is_active": true
         }
       ]
+    },
+    {
+      "id": "samsung-galaxy-tab-a9-plus",
+      "model_name": "Galaxy Tab A9+ 5G",
+      "brand": "Samsung",
+      "base_price": 1699,
+      "tagline": "Produtividade e entretenimento com tela imersiva de 11\" 90Hz e conexão 5G",
+      "video_url": "/s24-video.mp4",
+      "inactivity_timeout_sec": 15,
+      "target_scope": "all",
+      "target_cluster_id": "cluster-sp",
+      "target_store_id": "loja-101",
+      "plans_pricing": [
+        {
+          "id": "plan-tab-familia",
+          "plan_name": "TIM Black Família 100GB",
+          "plan_badge": "Oferta Especial TIM Black",
+          "plan_category": "Pós-Pago",
+          "subsidy_amount": 800,
+          "installments_count": 12,
+          "price_cash": 899,
+          "price_installments": "12x de R$ 74,92 sem juros",
+          "discount_label": "Economia de R$ 800,00",
+          "is_featured": true,
+          "is_active": true
+        },
+        {
+          "id": "plan-tab-black",
+          "plan_name": "TIM Black Individual 50GB",
+          "plan_badge": "TIM Black Individual",
+          "plan_category": "Pós-Pago",
+          "subsidy_amount": 500,
+          "installments_count": 12,
+          "price_cash": 1199,
+          "price_installments": "12x de R$ 99,92 sem juros",
+          "discount_label": "Economia de R$ 500,00",
+          "is_featured": false,
+          "is_active": true
+        },
+        {
+          "id": "plan-tab-controle",
+          "plan_name": "TIM Controle Smart 30GB",
+          "plan_badge": "TIM Controle Mais",
+          "plan_category": "Controle",
+          "subsidy_amount": 300,
+          "installments_count": 12,
+          "price_cash": 1399,
+          "price_installments": "12x de R$ 116,58 sem juros",
+          "discount_label": "Economia de R$ 300,00",
+          "is_featured": false,
+          "is_active": true
+        },
+        {
+          "id": "plan-tab-avulso",
+          "plan_name": "Aparelho Desbloqueado (Sem Plano)",
+          "plan_badge": "Aparelho Desbloqueado",
+          "plan_category": "Avulso",
+          "subsidy_amount": 0,
+          "installments_count": 12,
+          "price_cash": 1699,
+          "price_installments": "12x de R$ 141,58 sem juros",
+          "discount_label": "Preço de Tabela",
+          "is_featured": false,
+          "is_active": true
+        }
+      ],
+      "colors": [
+        {
+          "name": "Grafite",
+          "hex": "#3B3D40"
+        },
+        {
+          "name": "Prata",
+          "hex": "#D2D6DC"
+        }
+      ],
+      "highlights": [
+        {
+          "id": "screen",
+          "title": "Tela Imersiva 11\" 90Hz",
+          "desc": "Display amplo e fluido de 90Hz para streaming, jogos e leitura confortáveis.",
+          "icon": "Tv"
+        },
+        {
+          "id": "5g",
+          "title": "Conectividade 5G TIM",
+          "desc": "Alta velocidade e baixa latência na rede móvel mais rápida do Brasil.",
+          "icon": "Zap"
+        },
+        {
+          "id": "multitask",
+          "title": "Multitarefa Samsung DeX",
+          "desc": "Divida até 3 aplicativos simultaneamente na mesma tela para máxima produtividade.",
+          "icon": "Sparkles"
+        },
+        {
+          "id": "sound-battery",
+          "title": "Som Quad Dolby Atmos & 7.040mAh",
+          "desc": "4 alto-falantes espaciais e super bateria de longa duração para o dia todo.",
+          "icon": "BatteryCharging"
+        }
+      ],
+      "specs": {
+        "tela": "11.0\" TFT LCD WUXGA (1920x1200) 90 Hz",
+        "processador": "Snapdragon 695 5G Octa-core (até 2.2 GHz)",
+        "memoria_ram": "4 GB RAM",
+        "armazenamento": "64 GB (expansível via MicroSD até 1 TB)",
+        "bateria": "7.040 mAh com suporte a carregamento rápido",
+        "audio": "4 Alto-falantes com Dolby Atmos",
+        "camera": "Traseira 8 MP + Frontal 5 MP",
+        "conectividade": "5G SA/NSA, 4G LTE, Wi-Fi 5, Bluetooth 5.1"
+      },
+      "media_playlist": [
+        {
+          "id": "pl-taba9-poster",
+          "title": "Pôster Promocional Galaxy Tab A9+ 5G",
+          "type": "image",
+          "url": "/posters/tab-a9-plus-promo.svg",
+          "duration_sec": 10,
+          "object_fit": "cover",
+          "position_x": 50,
+          "position_y": 50,
+          "scale": 1,
+          "is_active": true
+        },
+        {
+          "id": "pl-taba9-video",
+          "title": "Vídeo Demonstração",
+          "type": "video",
+          "url": "/s24-video.mp4",
+          "duration_sec": 15,
+          "object_fit": "cover",
+          "position_x": 50,
+          "position_y": 50,
+          "scale": 1,
+          "is_active": true
+        }
+      ]
     }
   ],
   "active_device_id": "samsung-s24-ultra",

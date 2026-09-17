@@ -86,11 +86,11 @@ export const DeviceSelectionView: React.FC<DeviceSelectionViewProps> = ({
             </h2>
           </div>
           <p className="text-xs text-gray-300 leading-relaxed pl-9">
-            Não conseguimos identificar o modelo deste smartphone automaticamente (as políticas de privacidade do navegador mascararam a telemetria do hardware).
+            Não conseguimos identificar o modelo deste aparelho automaticamente (as políticas de privacidade do navegador mascararam a telemetria do hardware).
           </p>
           <div className="pl-9 pt-1">
             <span className="text-[11px] font-bold text-[#00B5E2] block">
-              👉 Selecione abaixo qual smartphone está instalado neste pedestal:
+              👉 Selecione abaixo qual aparelho está instalado neste pedestal:
             </span>
             {rawDetectedHint && (
               <span className="text-[9px] text-gray-400 font-mono block mt-0.5">

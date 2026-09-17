@@ -138,7 +138,7 @@ export const DisplayPage: React.FC = () => {
           if (!isMounted) return;
           setPedestalDeviceId(detection.matchedDeviceId);
           localStorage.setItem('showroom_device_id', detection.matchedDeviceId);
-          showToast(`✨ Smartphone ${detection.detectedModelName} identificado automaticamente!`);
+          showToast(`✨ ${detection.detectedModelName} identificado automaticamente!`);
           await loadCampaign(detection.matchedDeviceId, pedestalStoreId);
           setIsAutoDetecting(false);
         } else {

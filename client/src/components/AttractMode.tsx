@@ -230,7 +230,7 @@ export const AttractMode: React.FC<AttractModeProps> = ({
           ...shiftStyle,
           paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 20px)'
         }}
-        className="relative z-10 px-6 pt-3 pointer-events-none"
+        className="relative z-10 px-6 pt-3 pointer-events-none max-w-2xl mx-auto w-full"
       >
         
         {/* Nome do Aparelho & Tagline */}
@@ -238,10 +238,10 @@ export const AttractMode: React.FC<AttractModeProps> = ({
           <span className="text-[10px] font-bold uppercase tracking-widest text-[#00B5E2] block">
             Destaque em Loja
           </span>
-          <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-lg leading-tight">
+          <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight drop-shadow-lg leading-tight">
             {modelName}
           </h1>
-          <p className="text-xs text-blue-100 font-medium drop-shadow max-w-[300px]">
+          <p className="text-xs md:text-sm text-blue-100 font-medium drop-shadow max-w-[340px] md:max-w-[480px]">
             {tagline}
           </p>
         </div>
