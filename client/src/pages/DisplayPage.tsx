@@ -49,7 +49,8 @@ export const DisplayPage: React.FC = () => {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showKioskModal, setShowKioskModal] = useState(false);
-  const [showIosTipsModal, setShowIosTipsModal] = useState(false);
+  const [showKioskGuideModal, setShowKioskGuideModal] = useState(false);
+  const [kioskGuideTab, setKioskGuideTab] = useState<'android' | 'ios'>('android');
   const [isFullscreenActive, setIsFullscreenActive] = useState(false);
 
   // Motor Inteligente de Manutenção de Tela Acesa (Wake Lock + NoSleep Vídeo Contínuo)
@@ -372,14 +373,16 @@ export const DisplayPage: React.FC = () => {
             </span>
           </div>
           <div className="flex items-center space-x-2 shrink-0">
-            {isIOS && (
-              <button 
-                onClick={() => setShowIosTipsModal(true)}
-                className="bg-black/75 hover:bg-black text-amber-300 px-2.5 py-1 rounded-lg text-[10px] cursor-pointer flex items-center space-x-1"
-              >
-                <span>Dica iOS</span>
-              </button>
-            )}
+            <button 
+              onClick={() => {
+                setKioskGuideTab(isIOS ? 'ios' : 'android');
+                setShowKioskGuideModal(true);
+              }}
+              className="bg-black/75 hover:bg-black text-amber-300 px-2.5 py-1 rounded-lg text-[10px] cursor-pointer flex items-center space-x-1"
+            >
+              <ShieldCheck className="w-3 h-3 text-[#00B5E2]" />
+              <span>Blindar Totem</span>
+            </button>
             <button 
               onClick={() => setShowDeviceSelection(true)}
               className="bg-black hover:bg-black/80 text-white px-2.5 py-1 rounded-lg text-[10px] cursor-pointer"
@@ -574,66 +577,153 @@ export const DisplayPage: React.FC = () => {
         </div>
       )}
 
-      {/* MODAL DE INSTRUÇÕES DE BLOQUEIO / TELA ACESA PARA TOTENS IOS (IPHONE / IPAD) */}
-      {showIosTipsModal && (
+      {/* MODAL DE INSTRUÇÕES DE BLINDAGEM / MODO KIOSK (ANDROID & IOS) */}
+      {showKioskGuideModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
-          <div className="bg-[#0A1224] border border-[#00B5E2]/40 rounded-3xl p-6 max-w-sm w-full shadow-2xl text-white space-y-4">
+          <div className="bg-[#0A1224] border border-[#00B5E2]/40 rounded-3xl p-5 sm:p-6 max-w-md w-full shadow-2xl text-white space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center space-x-2">
-                <span className="text-xl">🍏</span>
-                <h3 className="text-sm font-black text-white">
-                  Tela Sempre Acesa no iOS
+                <ShieldCheck className="w-5 h-5 text-[#00B5E2]" />
+                <h3 className="text-sm sm:text-base font-black text-white">
+                  Blindagem do Totem (Modo Kiosk)
                 </h3>
               </div>
               <button 
-                onClick={() => setShowIosTipsModal(false)}
+                onClick={() => setShowKioskGuideModal(false)}
                 className="text-gray-400 hover:text-white p-1"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-3 text-xs text-gray-300">
-              <p>
-                O app já utiliza <strong>Wake Lock + Vídeo Silencioso</strong> para impedir que a tela apague. No iOS da Apple, ajuste estas duas opções no aparelho para blindar 100%:
-              </p>
-
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-1">
-                <div className="font-bold text-cyan-300 flex items-center space-x-1.5">
-                  <Sun className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>1. Bloqueio Automático:</span>
-                </div>
-                <p className="text-[11px] text-gray-400 pl-5">
-                  Vá em <strong>Ajustes &gt; Tela e Brilho &gt; Bloqueio Automático</strong> e marque <strong>"Nunca"</strong>.
-                </p>
-              </div>
-
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-1">
-                <div className="font-bold text-amber-300 flex items-center space-x-1.5">
-                  <Battery className="w-3.5 h-3.5 text-amber-400" />
-                  <span>2. Desativar Pouca Energia:</span>
-                </div>
-                <p className="text-[11px] text-gray-400 pl-5">
-                  Em <strong>Ajustes &gt; Bateria</strong>, desligue o <strong>Modo Pouca Energia</strong> (a bateria amarela força o desligamento da tela aos 30s).
-                </p>
-              </div>
-
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-1">
-                <div className="font-bold text-emerald-300 flex items-center space-x-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>3. Modo Totem (Acesso Guiado):</span>
-                </div>
-                <p className="text-[11px] text-gray-400 pl-5">
-                  Em <strong>Ajustes &gt; Acessibilidade &gt; Acesso Guiado</strong>, ative. No Safari com o Showroom aberto, clique <strong>3 vezes no botão lateral</strong> para travar a tela!
-                </p>
-              </div>
+            {/* TAB SELECTOR */}
+            <div className="grid grid-cols-2 gap-2 bg-white/5 p-1 rounded-2xl border border-white/10">
+              <button
+                onClick={() => setKioskGuideTab('android')}
+                className={`py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition-all cursor-pointer ${
+                  kioskGuideTab === 'android'
+                    ? 'bg-[#00B5E2] text-[#001438] shadow-md'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <span>🤖</span>
+                <span>Android (Samsung/Moto)</span>
+              </button>
+              <button
+                onClick={() => setKioskGuideTab('ios')}
+                className={`py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition-all cursor-pointer ${
+                  kioskGuideTab === 'ios'
+                    ? 'bg-[#00B5E2] text-[#001438] shadow-md'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <span>🍏</span>
+                <span>Apple (iPhone/iPad)</span>
+              </button>
             </div>
 
+            {/* ANDROID CONTENT */}
+            {kioskGuideTab === 'android' && (
+              <div className="space-y-3 text-xs text-gray-300 animate-fadeIn">
+                <p className="text-[11px] text-gray-300">
+                  No Android, o equivalente ao Acesso Guiado da Apple se chama <strong>"Fixar Aplicativo"</strong>. Ele impede que clientes saiam do app ou acessem outras áreas do tablet/celular:
+                </p>
+
+                {/* PASSO 1: FIXAR APLICATIVO */}
+                <div className="bg-white/5 border border-[#00B5E2]/30 rounded-2xl p-3 space-y-1.5">
+                  <div className="font-bold text-[#00B5E2] flex items-center space-x-1.5">
+                    <ShieldCheck className="w-4 h-4 text-[#00B5E2]" />
+                    <span>1. Fixar Aplicativo (App Pinning):</span>
+                  </div>
+                  <div className="text-[11px] text-gray-300 space-y-1 pl-5">
+                    <p>
+                      <strong>• No Samsung Galaxy (One UI / Tab A9+ / S24):</strong> Vá em <em>Configurações &gt; Segurança e Privacidade &gt; Mais configurações de segurança &gt; Fixar aplicativo</em> e ative.
+                    </p>
+                    <p>
+                      <strong>• Como Ativar no Totem:</strong> Abra o Showroom no Chrome. Toque no botão de <strong>Aplicativos Recentes</strong> (os 3 tracinhos <strong>|||</strong>). Toque no <strong>ícone do Chrome/TIM</strong> acima da janela e selecione <strong>"Fixar este aplicativo"</strong>.
+                    </p>
+                    <p className="text-[10px] text-cyan-300 bg-cyan-950/40 p-1.5 rounded-lg">
+                      🔒 O aparelho ficará 100% blindado. Para sair: segure Recentes e Voltar juntos e digite a senha.
+                    </p>
+                  </div>
+                </div>
+
+                {/* PASSO 2: PERMANECER ATIVO */}
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-1.5">
+                  <div className="font-bold text-amber-300 flex items-center space-x-1.5">
+                    <Sun className="w-4 h-4 text-amber-400" />
+                    <span>2. Tela Sempre Acesa no Cabo (Stay Awake):</span>
+                  </div>
+                  <div className="text-[11px] text-gray-300 space-y-1 pl-5">
+                    <p>
+                      No pedestal com carregador contínuo, você pode garantir que a tela <strong>nunca durma</strong>:
+                    </p>
+                    <p>
+                      Vá em <em>Configurações &gt; Opções do desenvolvedor</em> e ative <strong>"Permanecer ativo"</strong> (a tela nunca desliga enquanto carrega).
+                    </p>
+                    <p className="text-[10px] text-gray-400">
+                      *(Caso as opções do desenvolvedor não apareçam: vá em <em>Sobre o tablet &gt; Informações de software</em> e toque 7 vezes em <em>"Número de compilação"</em>).*
+                    </p>
+                  </div>
+                </div>
+
+                {/* PASSO 3: TELA CHEIA */}
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-1.5">
+                  <div className="font-bold text-emerald-300 flex items-center space-x-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span>3. Modo Tela Cheia:</span>
+                  </div>
+                  <p className="text-[11px] text-gray-300 pl-5">
+                    Toque no botão <strong>"Tela Cheia"</strong> na barra inferior do promotor para ocultar as barras de navegação do navegador e ter uma experiência 100% imersiva.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* IOS CONTENT */}
+            {kioskGuideTab === 'ios' && (
+              <div className="space-y-3 text-xs text-gray-300 animate-fadeIn">
+                <p className="text-[11px] text-gray-300">
+                  Para totens em iPhones e iPads em pedestais da loja, configure estes 3 ajustes no iOS:
+                </p>
+
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-1">
+                  <div className="font-bold text-cyan-300 flex items-center space-x-1.5">
+                    <Sun className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>1. Bloqueio Automático:</span>
+                  </div>
+                  <p className="text-[11px] text-gray-400 pl-5">
+                    Vá em <strong>Ajustes &gt; Tela e Brilho &gt; Bloqueio Automático</strong> e marque <strong>"Nunca"</strong>.
+                  </p>
+                </div>
+
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-1">
+                  <div className="font-bold text-amber-300 flex items-center space-x-1.5">
+                    <Battery className="w-3.5 h-3.5 text-amber-400" />
+                    <span>2. Desativar Pouca Energia:</span>
+                  </div>
+                  <p className="text-[11px] text-gray-400 pl-5">
+                    Em <strong>Ajustes &gt; Bateria</strong>, desligue o <strong>Modo Pouca Energia</strong> (a bateria amarela força o desligamento da tela após 30s).
+                  </p>
+                </div>
+
+                <div className="bg-white/5 border border-[#00B5E2]/30 rounded-2xl p-3 space-y-1">
+                  <div className="font-bold text-emerald-300 flex items-center space-x-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>3. Modo Totem (Acesso Guiado):</span>
+                  </div>
+                  <p className="text-[11px] text-gray-400 pl-5">
+                    Em <strong>Ajustes &gt; Acessibilidade &gt; Acesso Guiado</strong>, ative a chave. No Safari com o Showroom aberto, clique <strong>3 vezes no botão lateral de ligar</strong> para travar a tela!
+                  </p>
+                </div>
+              </div>
+            )}
+
             <button 
-              onClick={() => setShowIosTipsModal(false)}
+              onClick={() => setShowKioskGuideModal(false)}
               className="w-full bg-[#00B5E2] hover:bg-[#00c8f8] text-[#001438] py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-colors cursor-pointer"
             >
-              Entendi e Configurar
+              Concluído / Fechar Guia
             </button>
           </div>
         </div>
